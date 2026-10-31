@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, ExternalLink, Globe, Home, Lock, Plus, RotateCw,
 import { webSearch } from "@/lib/astra/web.functions";
 import { MobileMenuButton } from "@/components/astra/AppShell";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 
 
@@ -19,6 +20,7 @@ const blank = (): Tab => ({ id: nextId++, title: "New tab", query: "", results: 
 export function WebView({ initialQ }: { initialQ?: string | undefined } = {}) {
   const search = useServerFn(webSearch);
   const prefs = usePrefs();
+  const native = prefs.layout === "windows" || prefs.console === "sony" || prefs.console === "series";
   const [tabs, setTabs] = useState<Tab[]>(() => [blank()]);
   const [active, setActive] = useState(tabs[0]?.id ?? 1);
   const [input, setInput] = useState(initialQ ?? "");
@@ -129,9 +131,10 @@ export function WebView({ initialQ }: { initialQ?: string | undefined } = {}) {
             ))}
           </div>
         ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
-            <h1 className="font-display text-4xl">Search anything</h1>
-            <p className="text-sm text-muted-foreground">Open as many tabs as you like.</p>
+          <div className="browser-new-tab flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
+            <Globe className="mb-4 size-9 text-star"/>
+            <h1 className="font-display text-4xl">{native ? "Birch Browser" : "Search anything"}</h1>
+            {native ? <><form onSubmit={go} className="browser-home-search mt-5 flex w-full max-w-lg items-center gap-3 rounded-md border bg-card p-3"><Search className="size-4 text-muted-foreground"/><input aria-label="Search the web" placeholder="Search the web" value={input} onChange={e => setInput(e.target.value)} className="min-w-0 flex-1 bg-transparent text-sm outline-none"/><Button type="submit" variant="ghost" size="icon" aria-label="Search"><ArrowRight/></Button></form><div className="browser-quick-links">{["YouTube","Wikipedia","Twitch","Reddit"].map((name,i) => <Button key={name} variant="ghost" onClick={() => void go(undefined,["https://youtube.com","https://wikipedia.org","https://twitch.tv","https://reddit.com"][i])}><Globe/><span>{name}</span></Button>)}</div></> : <p className="text-sm text-muted-foreground">Open as many tabs as you like.</p>}
           </div>
         )}
       </div>

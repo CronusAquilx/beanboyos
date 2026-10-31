@@ -5,12 +5,15 @@ import { recordWav, streamSpeech, transcribeAudio } from "@/lib/astra/voice";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileMenuButton } from "@/components/astra/AppShell";
 import { cn } from "@/lib/utils";
+import { usePrefs } from "@/lib/astra/prefs";
 
 
 
 type Line = { role: "user" | "assistant"; text: string };
 
 export function VoiceView() {
+  const prefs = usePrefs();
+  const native = prefs.layout === "windows" || prefs.console === "sony" || prefs.console === "series";
   const [lines, setLines] = useState<Line[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -92,13 +95,13 @@ export function VoiceView() {
       </header>
       <div className="flex-1 overflow-y-auto">
         <div className={cn("mx-auto flex w-full max-w-2xl flex-col items-center px-4", compact ? "gap-4 py-4" : "min-h-full justify-center gap-8 py-8")}>
-          <div className={cn("relative flex items-center justify-center transition-all", compact ? "size-28" : "size-48")}>
+          {native ? <section className="voice-studio-display"><div className="flex items-center justify-between"><span className="text-xs text-muted-foreground">BIRCH VOICE</span><span className="text-xs">{on ? "LIVE" : "STANDBY"}</span></div><div className={cn("voice-waveform", (on || simpleState === "listening" || simpleState === "speaking") && "is-live")} aria-hidden="true">{Array.from({length:32},(_,i) => <i key={i}/>)}</div><h2 className="text-xl font-semibold">{simple ? "Tap to talk" : "Voice studio"}</h2></section> : <div className={cn("relative flex items-center justify-center transition-all", compact ? "size-28" : "size-48")}>
             <div className={cn("absolute inset-0 rounded-full bg-star/20 blur-2xl transition-opacity", on ? "animate-pulse opacity-100" : "opacity-40")} />
             <div className={cn("relative rounded-full bg-gradient-to-br from-star to-star/40 shadow-[0_0_60px_-10px_var(--star)] transition-transform duration-700",
               compact ? "size-20" : "size-36",
               v.status === "connected" && "scale-105",
               v.status === "connecting" && "animate-pulse")} />
-          </div>
+          </div>}
           <p role="status" className="text-center text-sm text-muted-foreground">{simple ? "Works on any network — tap, speak, tap again" : label}</p>
           {!simple && v.error && (
             <div role="alert" className="max-w-md text-center text-sm text-destructive">

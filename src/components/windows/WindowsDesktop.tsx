@@ -12,6 +12,7 @@ import { NowPlayingBar } from "@/components/music/NowPlayingBar";
 import { RoomFollower } from "@/components/RoomFollower";
 import { cn } from "@/lib/utils";
 import wallpaper from "@/assets/windows-wallpaper.jpg";
+import { WallpaperEffects } from "@/components/astra/WallpaperEffects";
 
 const MusicView = lazy(() => import("./views/MusicView").then(m => ({ default: m.MusicView })));
 const MoviesView = lazy(() => import("./views/MoviesView").then(m => ({ default: m.MoviesView })));
@@ -99,6 +100,7 @@ export function WindowsDesktop({ children, desktopOnly = false }: { children?: R
   };
   return <div className="windows-desktop fixed inset-0 flex flex-col overflow-hidden bg-background text-foreground">
     {look.artwork && <img src={look.customBg || wallpaper} width={1920} height={1088} alt="" className="windows-wallpaper absolute inset-0 size-full object-cover"/>}
+    <WallpaperEffects/>
     <div ref={workspace} className="relative min-h-0 flex-1" onPointerDown={e => { if (e.target === e.currentTarget) { setStart(false); setQuick(false); setTasks(false); } }}>
       <div className="windows-shortcuts absolute left-3 top-4 flex flex-col gap-2">{APPS.filter(a => ["home","games","web","music","movies","settings"].includes(a.id)).map(a => <Button key={a.id} variant="ghost" className="windows-shortcut" onClick={() => open(a.id)} aria-label={`Open ${a.title}`}><span className="windows-app-icon" data-tone={a.tone}><a.icon/></span><span>{a.title}</span></Button>)}</div>
       <div className="windows-brand pointer-events-none absolute bottom-6 right-7 text-right"><p className="text-sm font-semibold">BirchBlock</p><p className="mt-1 text-xs opacity-70">Windows desktop</p></div>
@@ -124,7 +126,7 @@ export function WindowsDesktop({ children, desktopOnly = false }: { children?: R
               {w.tabs.length > 1 && <Button variant="ghost" size="icon" className="size-7 shrink-0" aria-label="Move tab to new window" title="Move tab to new window" onClick={() => dispatch({ type: "detach", id: w.id, tabId: w.activeTab, newId: uid() })}><ExternalLink/></Button>}
             </div>
             {addTab === w.id && <div className="grid max-h-56 shrink-0 grid-cols-3 gap-1 overflow-auto border-b p-3">{APPS.map(a => appButton(a, w.id))}</div>}
-            {w.tabs.map(t => <div key={t.id} className={cn("windows-app-content min-h-0 flex-1 overflow-hidden bg-background", t.id !== w.activeTab && "hidden")}><Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Opening {t.title}…</div>}>{renderApp(t)}</Suspense></div>)}
+            {w.tabs.map(t => <div key={t.id} data-app={t.app === "route" ? path.split("/")[1] : t.app} className={cn("windows-app-content native-app min-h-0 flex-1 overflow-hidden bg-background", t.id !== w.activeTab && "hidden")}><Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Opening {t.title}…</div>}>{renderApp(t)}</Suspense></div>)}
           </section>
         </Rnd>;
       })}

@@ -2,6 +2,17 @@ import { describe, expect, it } from "vitest";
 import { setPrefs, setAppearance, resetPrefs } from "./prefs";
 
 describe("persisted appearance switching", () => {
+  it("restores separate console and desktop wallpaper effects", () => {
+    resetPrefs(); setPrefs({ console: "off", layout: "windows" });
+    setAppearance("windows", { particles: "stars", wallpaperMotion: "zoom", appTransparency: "glass" });
+    setPrefs({ console: "sony" }); setAppearance("sony", { particles: "rain", wallpaperMotion: "drift" });
+    setPrefs({ console: "series" });
+    expect(document.documentElement.dataset["wallpaperMotion"]).toBe("off");
+    setPrefs({ console: "off", layout: "windows" });
+    expect(document.documentElement.dataset["wallpaperMotion"]).toBe("zoom");
+    expect(document.documentElement.dataset["appTransparency"]).toBe("glass");
+    expect(JSON.parse(localStorage.getItem("astra-prefs") || "{}").appearances.sony.particles).toBe("rain");
+  });
   it("saves Windows appearance independently of console and classic", () => {
     resetPrefs();
     setPrefs({ console: "off", layout: "windows" });

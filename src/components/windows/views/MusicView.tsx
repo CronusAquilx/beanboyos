@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Check, Download, ListPlus, Loader2, Mic2, Music2, Play, Plus, Search, Sparkles, Trash2, Wand2 } from "lucide-react";
+import { ArrowLeft, Check, Download, ListPlus, Loader2, Mic2, Music2, Play, Plus, Search, Sparkles, Trash2, Wand2, Home, Library, Disc3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { usePrefs } from "@/lib/astra/prefs";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileMenuButton } from "@/components/astra/AppShell";
 import { RoomButton } from "@/components/RoomButton";
@@ -27,6 +29,9 @@ type View =
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
 export function MusicView() {
+  const prefs = usePrefs();
+  const native = prefs.layout === "windows" || prefs.console === "sony" || prefs.console === "series";
+  const [section, setSection] = useState<"home" | "library" | "browse">("home");
   const player = usePlayer();
   const [q, setQ] = useState("");
   const [view, setView] = useState<View | null>(null);
@@ -243,7 +248,18 @@ export function MusicView() {
   const mineView = view?.kind === "mine" ? mine.find((m) => m.id === view.id) : undefined;
 
   return (
-    <div className="flex h-full flex-col">
+    <div className={cn("music-application flex h-full flex-col", native && "has-native-navigation")}>
+      {native && <aside className="music-library-rail">
+        <div className="native-app-wordmark"><Disc3/><span>Birch Music</span></div>
+        <nav aria-label="Music navigation">
+          <Button variant="ghost" aria-pressed={section === "home"} onClick={() => { setSection("home"); void go(async () => ({ kind: "home", title: "Top charts", ...(await musicApi<any>({ op: "home" })) }), false); }}><Home/>Home</Button>
+          <Button variant="ghost" aria-pressed={section === "browse"} onClick={() => { setSection("browse"); void go(async () => ({ kind: "home", title: "Browse", ...(await musicApi<any>({ op: "home" })) }), false); }}><Search/>Browse</Button>
+          <Button variant="ghost" aria-pressed={section === "library"} onClick={() => setSection("library")}><Library/>Your library</Button>
+        </nav>
+        <div className="music-library-label"><span>PLAYLISTS</span><Button variant="ghost" size="icon" aria-label="Create playlist" title="Create playlist" onClick={() => void newPlaylistPrompt()}><Plus/></Button></div>
+        <div className="music-saved-playlists">{mine.map(p => <Button key={p.id} variant="ghost" onClick={() => { setSection("home"); push({ kind: "mine", id: p.id }); }}><Music2/><span className="truncate">{p.name}</span></Button>)}</div>
+        <div className="music-rail-current">{track?.art && <img src={artUrl(track.art)} alt=""/>}<p>{track?.title ?? "Nothing playing"}</p><span>{track?.artist ?? "Birch Music"}</span></div>
+      </aside>}
       <header className="flex h-12 shrink-0 items-center gap-2 border-b px-3">
         <MobileMenuButton />
         {stack.length > 0 && <button onClick={back} className="rounded-md p-1.5 hover:bg-accent" aria-label="Back"><ArrowLeft className="size-4" /></button>}
@@ -258,8 +274,9 @@ export function MusicView() {
         </select>
       </header>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-6xl px-4 py-6">
+      <div className="music-main-scroll flex-1 overflow-y-auto">
+        <div className="music-main-inner mx-auto max-w-6xl px-4 py-6">
+          {native && section === "library" ? <section><h1 className="text-3xl font-semibold">Your library</h1><div className="mt-5 flex items-center justify-between"><span className="text-sm text-muted-foreground">{mine.length} playlists</span><Button variant="secondary" onClick={() => void newPlaylistPrompt()}><Plus/>New playlist</Button></div><div className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-5">{mine.map(p => <Card key={p.id} art={p.tracks[0]?.art ?? ""} title={p.name} sub={`${p.tracks.length} songs`} onClick={() => { setSection("home"); push({ kind: "mine", id: p.id }); }}/>)}</div>{!mine.length && <p className="mt-8 text-sm text-muted-foreground">No saved playlists.</p>}</section> : <>
           {error && <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm">{error} <button onClick={() => location.reload()} className="ml-2 underline">Retry</button></div>}
           {lyricsOpen && track && <section className="music-panel mb-6 rounded-xl p-4">
             <div className="flex items-center justify-between gap-3">
@@ -274,10 +291,11 @@ export function MusicView() {
           {loading && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Loading…</p>}
 
           {!loading && view?.kind === "home" && <>
-            <section className="music-hero relative overflow-hidden rounded-2xl p-6 sm:p-8">
+            {native && <><div className="music-greeting"><span>MADE FOR YOU</span><h1>{section === "browse" ? "Find your next favorite" : "Your daily soundtrack"}</h1></div>{featured.length > 0 && <div className="music-quick-picks">{featured.slice(0,6).map(p => <Button key={p.id} variant="secondary" onClick={() => void openPlaylist(p.id)}>{p.art && <img src={artUrl(p.art)} alt=""/>}<span>{p.title}</span><Play/></Button>)}</div>}</>}
+            <section className="music-hero music-dj relative overflow-hidden rounded-2xl p-6 sm:p-8">
               <div className="relative">
                 <div className="label-mono flex items-center gap-1.5"><Sparkles className="size-3.5" /> AI DJ</div>
-                <h1 className="mt-1 font-display text-3xl sm:text-5xl">What do you want to hear?</h1>
+                <h1 className="mt-1 font-display text-3xl sm:text-5xl">{native ? "Mix it up" : "What do you want to hear?"}</h1>
                 <div className="mt-4 inline-flex rounded-full border bg-background/40 p-1 text-sm">
                   <button onClick={() => setAiMode("playlist")} className={cn("rounded-full px-3 py-1", aiMode === "playlist" && "bg-primary text-primary-foreground")}>Make a playlist</button>
                   <button onClick={() => setAiMode("find")} className={cn("rounded-full px-3 py-1", aiMode === "find" && "bg-primary text-primary-foreground")}>Find a song</button>
@@ -355,6 +373,7 @@ export function MusicView() {
             <Tracks list={mineView.tracks} onRemove={(i) => saveTracks(mineView.id, mineView.tracks.filter((_, n) => n !== i))} />
             <p className="mt-3 text-xs text-muted-foreground">Tip: use the <ListPlus className="inline size-3" /> button next to any song to add it here.</p>
           </> : <p className="text-sm text-muted-foreground">Playlist not found.</p>)}
+          </>}
         </div>
       </div>
     </div>
