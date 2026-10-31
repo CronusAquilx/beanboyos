@@ -1,5 +1,4 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { WindowsDesktop } from "@/components/windows/WindowsDesktop";
 import { usePrefs } from "@/lib/astra/prefs";
 export const Route = createFileRoute("/_authenticated/desktop")({
   head: () => ({ meta: [
@@ -11,4 +10,4 @@ export const Route = createFileRoute("/_authenticated/desktop")({
   ] }),
   component: DesktopPage,
 });
-function DesktopPage() { const p = usePrefs(); return p.layout === "windows" && p.console === "off" ? <WindowsDesktop desktopOnly/> : <Navigate to="/home" replace/>; }
+function DesktopPage() { const p = usePrefs(); return p.layout === "windows" && p.console === "off" ? null : <Navigate to="/home" replace/>; }
