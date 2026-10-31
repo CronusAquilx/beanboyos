@@ -1,6 +1,8 @@
 import { useSyncExternalStore } from "react";
+import { activeLayout, initialAppearance, updateAppearance, type AppearanceLayout, type AppearanceProfile, type AppearanceProfiles } from "./appearance";
 
 export type Prefs = {
+  appearances: AppearanceProfiles;
   layout: "classic" | "launcher";
   console: "off" | "sony" | "series" | "classic";
   consoleSetup: boolean;
@@ -39,6 +41,7 @@ export type Prefs = {
 };
 
 export const DEFAULT_PREFS: Prefs = {
+  appearances: {},
   layout: "classic",
   console: "off",
   consoleSetup: false,
@@ -121,6 +124,10 @@ function load() {
   loaded = true;
   try {
     state = { ...DEFAULT_PREFS, ...JSON.parse(localStorage.getItem(KEY) || "{}") };
+    const mode = localStorage.getItem("astra-theme") === "light" ? "light" : "dark";
+    const legacy = initialAppearance(state, mode);
+    state.appearances = { classic: legacy, launcher: { ...legacy }, sony: { ...initialAppearance(DEFAULT_PREFS), consoleBg: state.consoleBg, consoleCustomBg: state.consoleCustomBg }, series: { ...initialAppearance(DEFAULT_PREFS), consoleBg: state.consoleBg, consoleCustomBg: state.consoleCustomBg }, ...state.appearances };
+    state = { ...state, ...state.appearances[activeLayout(state)] };
     if (!state.v) { if (state.searchEngine === "astra") state.searchEngine = "google"; state.v = 1; }
   } catch { /* ignore */ }
   apply();
@@ -129,6 +136,15 @@ function load() {
 function apply() {
   if (typeof document === "undefined") return;
   const r = document.documentElement;
+  const look = getAppearance(state);
+  r.classList.toggle("dark", look.mode === "dark");
+  r.dataset["appearanceLayout"] = activeLayout(state);
+  r.dataset["tileSize"] = look.tileSize;
+  r.dataset["artwork"] = look.artwork ? "on" : "off";
+  r.dataset["sidebarWidth"] = look.sidebarWidth;
+  r.dataset["consoleTone"] = state.palette !== "default" ? "palette" : look.mode;
+  r.dataset["consoleAccent"] = state.accent === "star" ? "native" : "custom";
+  r.style.setProperty("--custom-bg-dim", `${state.customBgDim}%`);
   r.style.fontSize = `${state.fontScale}%`;
   r.style.setProperty("--radius", `${state.radius}rem`);
   const a = ACCENTS[state.accent];
@@ -152,7 +168,17 @@ function apply() {
 
 export function setPrefs(p: Partial<Prefs>) {
   load();
-  state = { ...state, ...p };
+  const previous = activeLayout(state);
+  const look = getAppearance(state);
+  const appearancePatch: Partial<AppearanceProfile> = {};
+  for (const key of Object.keys(look) as (keyof AppearanceProfile)[]) {
+    if (key in p) Object.assign(appearancePatch, { [key]: p[key as keyof Prefs] });
+  }
+  const appearances = p.appearances ?? updateAppearance(state.appearances, previous, look, appearancePatch);
+  state = { ...state, ...p, appearances };
+  const next = activeLayout(state);
+  const nextLook = appearances[next] ?? initialAppearance(DEFAULT_PREFS);
+  state = { ...state, ...nextLook };
   localStorage.setItem(KEY, JSON.stringify(state));
   apply();
   subs.forEach((f) => f());
@@ -160,6 +186,19 @@ export function setPrefs(p: Partial<Prefs>) {
 
 export function resetPrefs() {
   setPrefs(DEFAULT_PREFS);
+}
+
+export function getAppearance(p: Prefs, layout: AppearanceLayout = activeLayout(p)): AppearanceProfile {
+  return p.appearances[layout] ?? initialAppearance(p);
+}
+
+export function setAppearance(layout: AppearanceLayout, patch: Partial<AppearanceProfile>) {
+  load();
+  setPrefs({ appearances: updateAppearance(state.appearances, layout, getAppearance(state, layout), patch) });
+}
+
+export function resetAppearance(layout: AppearanceLayout) {
+  setAppearance(layout, initialAppearance(DEFAULT_PREFS));
 }
 
 export function usePrefs(): Prefs {

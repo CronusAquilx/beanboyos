@@ -76,11 +76,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <ShellCtx.Provider value={{ openMenu: () => setMobileOpen(true), openCommand: () => setCmdOpen(true) }}>
-      <div className="flex h-dvh overflow-hidden bg-background">
+      <div className="app-shell flex h-dvh overflow-hidden bg-background">
         {launcher ? (
           <IconRail onSearch={() => setCmdOpen(true)} />
         ) : (
-          <aside className="hidden w-64 shrink-0 border-r border-sidebar-border bg-sidebar md:flex">
+          <aside className="classic-sidebar hidden w-64 shrink-0 border-r border-sidebar-border bg-sidebar md:flex">
             <SidebarBody onNavigate={() => {}} onSearch={() => setCmdOpen(true)} />
           </aside>
         )}
@@ -127,7 +127,7 @@ function IconRail({ onSearch }: { onSearch: () => void }) {
   const active = { className: "bg-sidebar-accent text-star" };
   const shows = useShows();
   return (
-    <aside className="hidden w-14 shrink-0 flex-col items-center gap-1 border-r border-sidebar-border bg-sidebar py-3 md:flex">
+    <aside className="launcher-rail hidden w-14 shrink-0 flex-col items-center gap-1 border-r border-sidebar-border bg-sidebar py-3 md:flex">
       {RAIL.filter((r) => shows(r.f)).map((r) => (
         <Link key={r.to} to={r.to} title={r.label} aria-label={r.label} className={railLink} activeProps={active}>
           <r.icon className="size-4" />

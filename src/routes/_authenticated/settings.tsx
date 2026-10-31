@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ACCENTS, PALETTES, resetPrefs, setPrefs, usePrefs, type Prefs } from "@/lib/astra/prefs";
 import { cn } from "@/lib/utils";
+import { AppearanceSettings } from "@/components/astra/AppearanceSettings";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings \u2014 BirchBlock" }, { name: "description", content: "Manage your BirchBlock appearance, privacy, proxy and AI preferences." }, { property: "og:title", content: "Settings \u2014 BirchBlock" }, { property: "og:description", content: "Manage your BirchBlock appearance, privacy, proxy and AI preferences." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -109,10 +110,11 @@ function SettingsPage() {
                 onChange={(c) => set({ console: c })}
                 options={[
                   { v: "off", label: "Off", sub: "Keep your existing app layout" },
-                  { v: "sony", label: "Sony Console", sub: "Dark home row, big-tile store" },
+                  { v: "sony", label: "PlayStation / PS5", sub: "Games and media dashboard" },
+                  { v: "series", label: "Xbox Series X", sub: "Games, apps and Guide" },
                 ]}
               />
-              <Row title="Open Console Mode"><Button size="sm" onClick={() => { set({ console: "sony", focus: "all" }); navigate({ to: "/console" }); }}>Launch</Button></Row>
+              <Row title="Open Console Mode"><Button size="sm" onClick={() => { set({ console: p.console === "series" ? "series" : "sony", focus: "all" }); navigate({ to: "/console" }); }}>Launch</Button></Row>
             </Card>
             <Card title="Home screen">
               <Row title="Title"><Input className="w-44" value={p.homeName} onChange={(e) => set({ homeName: e.target.value })} /></Row>
@@ -136,7 +138,7 @@ function SettingsPage() {
           </>
         )}
 
-        {tab === "Appearance" && <Appearance p={p} set={set} />}
+        {tab === "Appearance" && <AppearanceSettings />}
 
         {tab === "Essences" && (
           <>
@@ -214,80 +216,6 @@ function SettingsPage() {
         {tab === "AI" && <AISettings />}
       </div>
     </div>
-  );
-}
-
-function Appearance({ p, set }: { p: Prefs; set: (x: Partial<Prefs>) => void }) {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-  useEffect(() => setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light"), []);
-  function applyTheme(t: "dark" | "light") {
-    setTheme(t);
-    document.documentElement.classList.toggle("dark", t === "dark");
-    localStorage.setItem("astra-theme", t);
-  }
-  return (
-    <>
-      <Card title="What you use BirchBlock for">
-        <Row title="Focus">
-          <div className="flex flex-wrap gap-2">
-            {(["all", "music", "movies", "web", "games", "ai"] as const).map((f) => (
-              <button key={f} onClick={() => set({ focus: f })} className={cn("rounded-md border px-3 py-1.5 text-sm capitalize", (p.focus || "all") === f ? "border-star bg-accent" : "hover:bg-accent/50")}>{f === "ai" ? "AI" : f === "web" ? "Web proxy" : f}</button>
-            ))}
-          </div>
-        </Row>
-        <Row title="Device">
-          <div className="flex flex-wrap gap-2">
-            {(["desktop", "tablet", "phone"] as const).map((d) => (
-              <button key={d} onClick={() => set({ device: d })} className={cn("rounded-md border px-3 py-1.5 text-sm capitalize", p.device === d ? "border-star bg-accent" : "hover:bg-accent/50")}>{d === "desktop" ? "Laptop / desktop" : d}</button>
-            ))}
-          </div>
-        </Row>
-      </Card>
-      <BackgroundCard />
-      <Card title="Theme">
-        <Row title="Mode">
-          <div className="inline-flex rounded-md border p-0.5">
-            {(["dark", "light"] as const).map((t) => (
-              <button key={t} onClick={() => applyTheme(t)} className={cn("rounded px-4 py-1.5 text-sm capitalize", theme === t ? "bg-accent text-foreground" : "text-muted-foreground")}>{t}</button>
-            ))}
-          </div>
-        </Row>
-        <Row title="Color theme">
-          <div className="flex flex-wrap gap-2">
-            {(Object.keys(PALETTES) as Prefs["palette"][]).map((k) => (
-              <button key={k} onClick={() => set({ palette: k, accent: "star" })} className={cn("flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm", p.palette === k ? "border-star bg-accent" : "hover:bg-accent/50")}>
-                <span className="flex">{PALETTES[k].swatch.map((c) => <span key={c} className="-ml-1 size-4 rounded-full border first:ml-0" style={{ background: c }} />)}</span>
-                {PALETTES[k].name}
-              </button>
-            ))}
-          </div>
-        </Row>
-        <Row title="Accent color">
-          <div className="flex flex-wrap gap-2">
-            {(Object.keys(ACCENTS) as Prefs["accent"][]).map((a) => (
-              <button
-                key={a}
-                aria-label={a}
-                onClick={() => set({ accent: a })}
-                className={cn("size-6 rounded-full border-2", p.accent === a ? "border-foreground" : "border-transparent", a === "star" && "bg-star")}
-                style={ACCENTS[a] ? { background: ACCENTS[a] } : undefined}
-              />
-            ))}
-          </div>
-        </Row>
-      </Card>
-      <Card title="Size & shape">
-        <Row title={`Text size · ${p.fontScale}%`}><Slider className="w-40" min={85} max={125} step={5} value={[p.fontScale]} onValueChange={([v]) => set({ fontScale: v ?? 100 })} /></Row>
-        <Row title={`Corner roundness · ${p.radius.toFixed(2)}`}><Slider className="w-40" min={0} max={1.2} step={0.1} value={[p.radius]} onValueChange={([v]) => set({ radius: v ?? 0.3 })} /></Row>
-        <Row title="Density">
-          <div className="inline-flex rounded-md border p-0.5">
-            {(["compact", "comfortable"] as const).map((d) => (
-              <button key={d} onClick={() => set({ density: d })} className={cn("rounded px-3 py-1.5 text-sm capitalize", p.density === d ? "bg-accent text-foreground" : "text-muted-foreground")}>{d}</button>
-            ))}
-          </div>
-        </Row>
-      </Card>
-    </>
   );
 }
 
