@@ -4,7 +4,7 @@ import { usePrefs } from "@/lib/astra/prefs";
 import { openProxied } from "@/lib/astra/proxy";
 import { attachProxiedPopups } from "@/lib/astra/proxy-popups";
 import { Button } from "@/components/ui/button";
-import { cloudRelayUrl } from "@/lib/games/cloud-relay";
+import { cloudRelayUrl, needsIsolation } from "@/lib/games/cloud-relay";
 import { gameRelayUrl, useGameplayPerformance, type GameQuality } from "@/lib/games/performance";
 
 // Full-tab game player: opens a game through the Astra proxy in its own browser tab.
@@ -20,7 +20,12 @@ function Play() {
   const [quality, setQuality] = useState<GameQuality>("performance");
   const tuned = gameRelayUrl(url, quality);
   // Big ports get the isolated same-domain relay so they can boot and download their data folders.
-  const direct = tuned ?? cloudRelayUrl(url);
+  const relayed = tuned ? null : cloudRelayUrl(url);
+  // Isolated ports must be top-level pages; other relayed games stay in this tab's frame so their
+  // sign-in popups go through the proxy.
+  let isolated = !!tuned;
+  try { isolated = isolated || (!!relayed && needsIsolation(new URL(url).hostname)); } catch { /* invalid url */ }
+  const direct = tuned ?? (isolated ? relayed : null);
   const prefs = usePrefs();
   useGameplayPerformance();
   const ref = useRef<HTMLIFrameElement>(null);
@@ -53,10 +58,11 @@ function Play() {
     if (!started || !iframe || !url) return;
     // Sign-in popups (e.g. "Sign in with Google") open in a proxied overlay instead of escaping the proxy.
     const detach = attachProxiedPopups(iframe, url, prefs);
+    if (relayed) { iframe.src = relayed; return detach; }
     openProxied(iframe, url, prefs).catch((e) => setError(e instanceof Error ? e.message : String(e)));
     return detach;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, url, direct, prefs.transport, prefs.wisp]);
+  }, [started, url, direct, relayed, prefs.transport, prefs.wisp]);
 
   return (
     <div className="fixed inset-0 z-50 bg-background">
