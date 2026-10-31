@@ -630,6 +630,8 @@ export type Database = {
         }[]
       }
       social_member: { Args: { p: string; u: string }; Returns: boolean }
+      social_party_owner: { Args: { p: string }; Returns: boolean }
+      social_party_visible: { Args: { p: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
