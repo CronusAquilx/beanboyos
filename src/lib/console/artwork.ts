@@ -12,6 +12,6 @@ export function fallbackArtwork(title: string, kind: "cloud" | "arcade" | "app")
 }
 
 /** Prefer the thumbnail from the game's source site; fall back to the genre illustration. */
-export function consoleArtwork(game: { title: string; kind: "cloud" | "arcade" | "app"; cover?: string }) {
+export function consoleArtwork(game: { title: string; kind: "cloud" | "arcade" | "app"; cover?: string | undefined }) {
   return game.cover ?? fallbackArtwork(game.title, game.kind);
 }
