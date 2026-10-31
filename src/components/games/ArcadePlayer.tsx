@@ -6,8 +6,11 @@ import { HostParty } from "@/components/games/GameParty";
 import { AutoMods } from "@/components/games/AutoMods";
 import { supabase } from "@/integrations/supabase/client";
 import { recordPlay, addSeconds, recordMod, recordParty } from "@/lib/games/stats";
+import { usePrefs } from "@/lib/astra/prefs";
+import { attachProxiedPopups } from "@/lib/astra/proxy-popups";
 type Game = { id: number; name: string; author: string; file: string; cover: string };
 export function Player({ game, onBack }: { game: Game; onBack: () => void }) {
+  const prefs = usePrefs();
   const wrap = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const [nonce, setNonce] = useState(0);
@@ -81,6 +84,11 @@ export function Player({ game, onBack }: { game: Game; onBack: () => void }) {
   const mr = mapReaderFor(game.name);
   if (mr) { qs.set("mapfn", mr.fn); qs.set("probe", mr.probe); }
   const src = `/api/public/games/play/${game.file}${qs.size ? `?${qs}` : ""}`;
+  useEffect(() => {
+    const iframe = frame.current;
+    if (!iframe) return;
+    return attachProxiedPopups(iframe, new URL(src, window.location.origin).href, prefs);
+  }, [src, nonce, save === null, prefs.transport, prefs.wisp]);
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center gap-2 border-b px-3 py-2">

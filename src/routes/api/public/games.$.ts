@@ -40,7 +40,8 @@ try{window.caches}catch(e){try{Object.defineProperty(window,"caches",{value:cs()
 try{window.indexedDB}catch(e){try{Object.defineProperty(window,"indexedDB",{value:undefined,configurable:true})}catch(_){}}
 try{navigator.serviceWorker}catch(e){try{Object.defineProperty(navigator,"serviceWorker",{value:undefined,configurable:true})}catch(_){}}
 try{document.cookie}catch(e){Object.defineProperty(document,"cookie",{get:function(){return""},set:function(){},configurable:true})}
-window.open=function(u){if(u){try{location.href=u}catch(e){}}return null};
+window.open=function(u){if(u){try{parent.postMessage({bbPopup:1,url:new URL(String(u),location.href).href},"*")}catch(e){}}return null};
+document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(a&&a.target&&a.target!=="_self"){e.preventDefault();window.open(a.href)}},true);
 addEventListener("pointerdown",function(){try{window.focus()}catch(e){}},true);
 addEventListener("load",function(){try{window.focus()}catch(e){}});
 var L=window.__bbLock=Object.create(null);try{(new URLSearchParams(location.search).get("mods")||"").split(",").forEach(function(p){if(!/^[A-Za-z0-9_$]{1,40}$/.test(p))return;var k="__bb"+p;Object.defineProperty(Object.prototype,p,{configurable:true,get:function(){var v=L[p];return v!==undefined?v:this[k]},set:function(v){if(this===Object.prototype)return;Object.defineProperty(this,k,{value:v,writable:true,configurable:true,enumerable:false})}})})}catch(e){}
