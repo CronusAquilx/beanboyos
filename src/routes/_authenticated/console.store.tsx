@@ -6,7 +6,7 @@ import { useConsoleCtx } from "@/lib/console/ctx";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/console/store")({
-  validateSearch: (s: Record<string, unknown>) => ({game: typeof s["game"] === "string" ? s["game"] : ""}),
+  validateSearch: (s: Record<string, unknown>): { game?: string } => ({game: typeof s["game"] === "string" ? s["game"] : undefined}),
   loader: ({ context }) => context.queryClient.ensureQueryData(consoleCatalogOptions),
   head: () => ({ meta: [{ title: "Console Store — BirchBlock" }, { name: "description", content: "Browse the BirchBlock cloud games, arcade games and apps." }, { property: "og:title", content: "Console Store — BirchBlock" }, { property: "og:description", content: "Browse the BirchBlock cloud games, arcade games and apps." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: SharedStore,
