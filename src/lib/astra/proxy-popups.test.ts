@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_PREFS } from "./prefs";
-import { attachProxiedPopups, resolvePopupTarget } from "./proxy-popups";
+import { attachProxiedPopups, resolvePopupTarget, signInWindowFeatures } from "./proxy-popups";
 
 const mocks = vi.hoisted(() => ({ open: vi.fn().mockResolvedValue({}), url: vi.fn().mockReturnValue(null), init: new Map<HTMLIFrameElement, (win: Window) => void>() }));
 vi.mock("./proxy", () => ({
@@ -35,7 +35,7 @@ describe("game sign-in routing", () => {
     mocks.init.get(game)?.(gameWindow);
     const original = gameWindow.location.href;
     const result = gameWindow.open(login, "_blank");
-    expect(nativeOpen).toHaveBeenCalledWith("about:blank", "_blank");
+    expect(nativeOpen).toHaveBeenCalledWith("about:blank", "astra-game-signin", "popup=yes,resizable=yes,scrollbars=yes,width=520,height=720");
     expect(mocks.open).toHaveBeenCalledWith(separateWindow.document.querySelector("iframe"), login, DEFAULT_PREFS);
     expect(gameWindow.location.href).toBe(original);
     expect(result?.opener).toBe(gameWindow);
@@ -73,6 +73,40 @@ describe("game sign-in routing", () => {
     expect(loginWindow.opener).toBe(gameWindow);
     expect(loginWindow.close).not.toHaveBeenCalled();
     expect(mocks.open).not.toHaveBeenCalled();
+    detach();
+  });
+  it("requests a separate Google window while keeping opener callbacks enabled", () => {
+    expect(signInWindowFeatures("width=500,height=600,noopener,noreferrer")).toBe("popup=yes,resizable=yes,scrollbars=yes,width=500,height=600");
+  });
+  it("loads delayed Google navigation even without a shared game proxy context", () => {
+    const game = document.createElement("iframe"); document.body.append(game);
+    const separate = document.createElement("iframe"); document.body.append(separate);
+    const gameWindow = game.contentWindow; const separateWindow = separate.contentWindow;
+    if (!gameWindow || !separateWindow) throw new Error("Missing test windows");
+    vi.spyOn(separateWindow, "close").mockImplementation(() => {});
+    const nativeOpen = vi.spyOn(window, "open").mockReturnValue(separateWindow);
+    const detach = attachProxiedPopups(game, "https://1v1.lol/", DEFAULT_PREFS);
+    mocks.init.get(game)?.(gameWindow);
+    const result = gameWindow.open("about:blank", "firebaseAuth", "width=500,height=600");
+    if (!result) throw new Error("Missing login window");
+    result.location.assign(login);
+    expect(mocks.open).toHaveBeenCalledWith(separateWindow.document.querySelector("iframe"), login, DEFAULT_PREFS);
+    expect(nativeOpen).toHaveBeenCalledWith("about:blank", "firebaseAuth", "popup=yes,resizable=yes,scrollbars=yes,width=500,height=600");
+    expect(result.closed).toBe(false);
+    detach();
+  });
+  it("routes OAuth callbacks to the nested game frame that opened the window", () => {
+    const game = document.createElement("iframe"); document.body.append(game);
+    const nested = document.createElement("iframe"); game.contentDocument?.body.append(nested);
+    const nestedWindow = nested.contentWindow;
+    if (!nestedWindow) throw new Error("Missing nested window");
+    const loginWindow = { location: { href: "about:blank" }, closed: false, opener: null, close: vi.fn() };
+    vi.spyOn(window, "open").mockReturnValue(loginWindow as unknown as Window);
+    mocks.url.mockImplementation((_frame, target) => `https://app.test/scramjet/p/controller/game/${encodeURIComponent(target)}`);
+    const detach = attachProxiedPopups(game, "https://1v1.lol/", DEFAULT_PREFS);
+    mocks.init.get(game)?.(nestedWindow);
+    nestedWindow.open(login, "firebaseAuth");
+    expect(loginWindow.opener).toBe(nestedWindow);
     detach();
   });
 });

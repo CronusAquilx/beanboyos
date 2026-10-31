@@ -3,6 +3,15 @@ import { gamePopupUrl, onProxyFrameInit, openProxied } from "./proxy";
 
 const PREFIX = "/scramjet/p/";
 
+/** Request an OAuth window without severing the callback connection to the game. */
+export function signInWindowFeatures(requested = ""): string {
+  const sizes = requested.split(",").map((value) => value.trim())
+    .filter((value) => /^(width|height|left|top)=\d+$/i.test(value));
+  if (!sizes.some((value) => /^width=/i.test(value))) sizes.push("width=520");
+  if (!sizes.some((value) => /^height=/i.test(value))) sizes.push("height=720");
+  return ["popup=yes", "resizable=yes", "scrollbars=yes", ...sizes].join(",");
+}
+
 /** Turn whatever a proxied page passed to window.open into a real target address. */
 export function resolvePopupTarget(raw: string, base: string): string | null {
   const value = raw.trim();
@@ -39,16 +48,18 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
     let w: Win | null = null;
     try { w = (initializedWindow ?? iframe.contentWindow) as Win | null; } catch { return; }
     if (!w) return;
-    const opener = iframe.contentWindow ?? w;
+    // Initialization also runs for nested game frames: the actual caller must be
+    // the opener, not always the outer frame, or Firebase callbacks miss their SDK.
+    const opener = w;
     try {
-      w.open = ((u?: string | URL) => {
+      w.open = ((u?: string | URL, name?: string, features?: string) => {
         let current = baseUrl;
         try { current = resolvePopupTarget(opener.location.href, baseUrl) ?? baseUrl; } catch { /* ignore */ }
         const target = resolvePopupTarget(String(u ?? ""), current);
         if (!target && String(u ?? "") && String(u) !== "about:blank") return null;
         close();
         // Open synchronously while user activation is still available.
-        popup = window.open("about:blank", "_blank");
+        popup = window.open("about:blank", name && !/^_(self|parent|top|blank)$/i.test(name) ? name : "astra-game-signin", signInWindowFeatures(features));
         const sharedUrl = target ? gamePopupUrl(iframe, target) : null;
         // Firebase polls the returned window's closed state and uses its top-level
         // opener/postMessage. An iframe masquerading as a popup breaks that contract.
@@ -103,9 +114,12 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
         overlay.appendChild(box);
         if (popup) { owner.body.appendChild(frame); overlay = null; }
         else document.body.appendChild(overlay);
+        const nativeFallback = popup;
         const wireUp = () => {
           try {
-            const pw = frame.contentWindow as Window & { close: () => void };
+            const pw = frame.contentWindow;
+            if (!pw) return;
+            if (nativeFallback) nativeFallback.opener = opener;
             Object.defineProperty(pw, "opener", { value: opener, configurable: true });
             pw.close = close;
           } catch { /* ignore */ }
@@ -113,12 +127,39 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
         wireUp();
         frame.addEventListener("load", wireUp);
         detachPopup = onProxyFrameInit(frame, wireUp);
-        if (target) openProxied(frame, target, prefs).catch((error) => {
+        const navigate = (raw: string | URL) => {
+          const next = resolvePopupTarget(String(raw), current);
+          if (!next) return;
+          void openProxied(frame, next, prefs).catch((error) => {
           const message = owner.createElement("p");
           message.textContent = `Sign-in couldn't load: ${error instanceof Error ? error.message : "Connection failed"}`;
           owner.body.appendChild(message);
+          });
+        };
+        if (target) navigate(target);
+        const handle = nativeFallback ?? frame.contentWindow;
+        if (!handle) return null;
+        // Firebase first opens about:blank, then asynchronously assigns its auth
+        // helper URL. The arcade/blocked-popup fallback must support that too.
+        const locationHandle = {
+          get href() { try { return frame.contentWindow?.location.href ?? "about:blank"; } catch { return ""; } },
+          set href(value: string) { navigate(value); },
+          assign: navigate, replace: navigate,
+        };
+        return new Proxy(handle, {
+          get(win, key) {
+            if (key === "location") return locationHandle;
+            if (key === "opener") return opener;
+            if (key === "closed") return nativeFallback ? nativeFallback.closed : !frame.isConnected;
+            if (key === "close") return close;
+            const value = Reflect.get(win, key, win);
+            return typeof value === "function" ? value.bind(win) : value;
+          },
+          set(win, key, value) {
+            if (key === "location") { navigate(value); return true; }
+            return Reflect.set(win, key, value, win);
+          },
         });
-        return frame.contentWindow;
       }) as typeof window.open;
       w.document.addEventListener("click", (event) => {
         const link = (event.target as Element | null)?.closest?.<HTMLAnchorElement>("a[href]");
