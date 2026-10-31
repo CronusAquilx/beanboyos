@@ -1,5 +1,9 @@
 # Birchbeat import roadmap
 
+## Current request — Retrora black screen
+- [ ] Reproduce the black screen after Retrora Launch and repair the failing proxy path.
+- [ ] Run focused regression tests and verify the game startup through the proxy.
+
 ## Current request — game launch repairs and Freebuild
 - [x] Repair BuildNow GG with its current game-only entry and verified files.crazygames.com assets; browser reached the rendered lobby and ConnectedToMasterServer after first-load downloads.
 - [x] Repair Cyberpunk's slice/Link failed error: CSS URL replacement corrupted inline new URL constructors and diverted engine data to the wrong origin. Preserve constructors and relay both verified Cyberpunk CDN hosts; browser reached Starting Engine at 57% with no page errors.
