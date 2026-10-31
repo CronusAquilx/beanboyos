@@ -39,6 +39,7 @@ import { Route as AuthenticatedConsoleLibraryRouteImport } from './routes/_authe
 import { Route as AuthenticatedConsoleMediaRouteImport } from './routes/_authenticated/console.media'
 import { Route as AuthenticatedConsoleProfileRouteImport } from './routes/_authenticated/console.profile'
 import { Route as AuthenticatedConsoleSettingsRouteImport } from './routes/_authenticated/console.settings'
+import { Route as AuthenticatedConsoleSocialRouteImport } from './routes/_authenticated/console.social'
 import { Route as AuthenticatedConsoleStoreRouteImport } from './routes/_authenticated/console.store'
 import { Route as AuthenticatedMoviesIndexRouteImport } from './routes/_authenticated/movies.index'
 import { Route as ScramjetPSplatRouteImport } from './routes/scramjet.p.$'
@@ -209,6 +210,12 @@ const AuthenticatedConsoleSettingsRoute =
     path: '/console/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedConsoleSocialRoute =
+  AuthenticatedConsoleSocialRouteImport.update({
+    id: '/console/social',
+    path: '/console/social',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedConsoleStoreRoute =
   AuthenticatedConsoleStoreRouteImport.update({
     id: '/console/store',
@@ -306,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/console/media': typeof AuthenticatedConsoleMediaRoute
   '/console/profile': typeof AuthenticatedConsoleProfileRoute
   '/console/settings': typeof AuthenticatedConsoleSettingsRoute
+  '/console/social': typeof AuthenticatedConsoleSocialRoute
   '/console/store': typeof AuthenticatedConsoleStoreRoute
   '/scramjet/p/$': typeof ScramjetPSplatRoute
   '/chat/': typeof AuthenticatedChatIndexRoute
@@ -349,6 +357,7 @@ export interface FileRoutesByTo {
   '/console/media': typeof AuthenticatedConsoleMediaRoute
   '/console/profile': typeof AuthenticatedConsoleProfileRoute
   '/console/settings': typeof AuthenticatedConsoleSettingsRoute
+  '/console/social': typeof AuthenticatedConsoleSocialRoute
   '/console/store': typeof AuthenticatedConsoleStoreRoute
   '/scramjet/p/$': typeof ScramjetPSplatRoute
   '/chat': typeof AuthenticatedChatIndexRoute
@@ -394,6 +403,7 @@ export interface FileRoutesById {
   '/_authenticated/console/media': typeof AuthenticatedConsoleMediaRoute
   '/_authenticated/console/profile': typeof AuthenticatedConsoleProfileRoute
   '/_authenticated/console/settings': typeof AuthenticatedConsoleSettingsRoute
+  '/_authenticated/console/social': typeof AuthenticatedConsoleSocialRoute
   '/_authenticated/console/store': typeof AuthenticatedConsoleStoreRoute
   '/scramjet/p/$': typeof ScramjetPSplatRoute
   '/_authenticated/chat/': typeof AuthenticatedChatIndexRoute
@@ -439,6 +449,7 @@ export interface FileRouteTypes {
     | '/console/media'
     | '/console/profile'
     | '/console/settings'
+    | '/console/social'
     | '/console/store'
     | '/scramjet/p/$'
     | '/chat/'
@@ -482,6 +493,7 @@ export interface FileRouteTypes {
     | '/console/media'
     | '/console/profile'
     | '/console/settings'
+    | '/console/social'
     | '/console/store'
     | '/scramjet/p/$'
     | '/chat'
@@ -526,6 +538,7 @@ export interface FileRouteTypes {
     | '/_authenticated/console/media'
     | '/_authenticated/console/profile'
     | '/_authenticated/console/settings'
+    | '/_authenticated/console/social'
     | '/_authenticated/console/store'
     | '/scramjet/p/$'
     | '/_authenticated/chat/'
@@ -773,6 +786,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConsoleSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/console/social': {
+      id: '/_authenticated/console/social'
+      path: '/console/social'
+      fullPath: '/console/social'
+      preLoaderRoute: typeof AuthenticatedConsoleSocialRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/console/store': {
       id: '/_authenticated/console/store'
       path: '/console/store'
@@ -877,6 +897,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConsoleMediaRoute: typeof AuthenticatedConsoleMediaRoute
   AuthenticatedConsoleProfileRoute: typeof AuthenticatedConsoleProfileRoute
   AuthenticatedConsoleSettingsRoute: typeof AuthenticatedConsoleSettingsRoute
+  AuthenticatedConsoleSocialRoute: typeof AuthenticatedConsoleSocialRoute
   AuthenticatedConsoleStoreRoute: typeof AuthenticatedConsoleStoreRoute
   AuthenticatedChatIndexRoute: typeof AuthenticatedChatIndexRoute
   AuthenticatedConsoleIndexRoute: typeof AuthenticatedConsoleIndexRoute
@@ -906,6 +927,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConsoleMediaRoute: AuthenticatedConsoleMediaRoute,
   AuthenticatedConsoleProfileRoute: AuthenticatedConsoleProfileRoute,
   AuthenticatedConsoleSettingsRoute: AuthenticatedConsoleSettingsRoute,
+  AuthenticatedConsoleSocialRoute: AuthenticatedConsoleSocialRoute,
   AuthenticatedConsoleStoreRoute: AuthenticatedConsoleStoreRoute,
   AuthenticatedChatIndexRoute: AuthenticatedChatIndexRoute,
   AuthenticatedConsoleIndexRoute: AuthenticatedConsoleIndexRoute,
