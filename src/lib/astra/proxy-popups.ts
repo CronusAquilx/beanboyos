@@ -1,5 +1,5 @@
 import type { Prefs } from "./prefs";
-import { gamePopupUrl, onProxyFrameInit, openProxied } from "./proxy";
+import { gamePopupUrl, onProxyFrameInit, openProxied, preparePopupRouting } from "./proxy";
 
 const PREFIX = "/scramjet/p/";
 
@@ -42,42 +42,68 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
   let overlay: HTMLDivElement | null = null;
   let popup: Window | null = null;
   let detachPopup = () => {};
+  let popupName = "";
+  let generation = 0;
+  let nativeHandle: Window | null = null;
+  const patched = new WeakSet<Window>();
+  const bridgeHandles = new Map<string, Window>();
   const close = () => { detachPopup(); detachPopup = () => {}; popup?.close(); popup = null; overlay?.remove(); overlay = null; };
-  const patch = (initializedWindow?: Window) => {
+  const patch = (initializedWindow?: Window, callingWindow?: Window) => {
     type Win = Window & { open: typeof window.open };
     let w: Win | null = null;
     try { w = (initializedWindow ?? iframe.contentWindow) as Win | null; } catch { return; }
     if (!w) return;
+    if (patched.has(w)) return;
+    patched.add(w);
     // Initialization also runs for nested game frames: the actual caller must be
     // the opener, not always the outer frame, or Firebase callbacks miss their SDK.
-    const opener = w;
+    const opener = callingWindow ?? w;
     try {
       w.open = ((u?: string | URL, name?: string, features?: string) => {
         let current = baseUrl;
         try { current = resolvePopupTarget(opener.location.href, baseUrl) ?? baseUrl; } catch { /* ignore */ }
         const target = resolvePopupTarget(String(u ?? ""), current);
         if (!target && String(u ?? "") && String(u) !== "about:blank") return null;
+        const requestedName = name && !/^_(self|parent|top|blank)$/i.test(name) ? name : "astra-game-signin";
+        if (popup && !popup.closed && popupName === requestedName && nativeHandle) {
+          if (target) nativeHandle.location.href = target;
+          popup.focus();
+          return nativeHandle;
+        }
         close();
+        const attempt = ++generation;
+        popupName = requestedName;
         // Open synchronously while user activation is still available.
-        popup = window.open("about:blank", name && !/^_(self|parent|top|blank)$/i.test(name) ? name : "astra-game-signin", signInWindowFeatures(features));
+        popup = window.open("about:blank", requestedName, signInWindowFeatures(features));
         const sharedUrl = target ? gamePopupUrl(iframe, target) : null;
         // Firebase polls the returned window's closed state and uses its top-level
         // opener/postMessage. An iframe masquerading as a popup breaks that contract.
-        if (popup && (sharedUrl || !target && gamePopupUrl(iframe, baseUrl))) {
+        if (popup) {
           const nativePopup = popup;
           nativePopup.opener = opener;
+          let destination = "about:blank";
           const navigate = (raw: string | URL) => {
             const next = resolvePopupTarget(String(raw), current);
-            const proxied = next ? gamePopupUrl(iframe, next) : null;
+            if (!next) return;
+            destination = next;
+            const proxied = gamePopupUrl(iframe, next);
             if (proxied) nativePopup.location.href = proxied;
+            else void preparePopupRouting(iframe, prefs).then(() => {
+              if (attempt !== generation || nativePopup.closed || destination !== next) return;
+              const ready = gamePopupUrl(iframe, next);
+              if (!ready) throw new Error("Sign-in routing is unavailable.");
+              nativePopup.location.href = ready;
+            }).catch(error => {
+              try { nativePopup.document.body.textContent = `Sign-in couldn't load: ${error instanceof Error ? error.message : "Connection failed"}. Close this window and try again.`; } catch { /* closed */ }
+            });
           };
-          if (sharedUrl) nativePopup.location.href = sharedUrl;
+          if (target) navigate(target);
           const locationHandle = {
-            get href() { try { return nativePopup.location.href; } catch { return ""; } },
+            get href() { return destination; },
             set href(value: string) { navigate(value); },
             assign: navigate, replace: navigate,
           };
-          return new Proxy(nativePopup, {
+          nativeHandle = new Proxy(nativePopup, {
             get(win, key) {
               if (key === "location") return locationHandle;
               const value = Reflect.get(win, key, win);
@@ -88,6 +114,7 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
               return Reflect.set(win, key, value, win);
             },
           });
+          return nativeHandle;
         }
         const owner = popup?.document ?? document;
         if (popup) {
@@ -178,11 +205,19 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
     if (event.source !== iframe.contentWindow || event.data?.bbPopup !== 1 || typeof event.data.url !== "string") return;
     // Sandboxed arcade games cannot expose their window to the parent. Use the same popup path.
     const target = resolvePopupTarget(event.data.url, baseUrl);
-    if (target) {
+    const id = typeof event.data.id === "string" ? event.data.id : "legacy";
+    if (event.data.action === "navigate") {
+      const handle = bridgeHandles.get(id);
+      if (handle && target) handle.location.href = target;
+      return;
+    }
+    if (event.data.action === "close") { bridgeHandles.get(id)?.close(); bridgeHandles.delete(id); return; }
+    if (target || event.data.url === "about:blank" || event.data.url === "") {
       const bridge = document.createElement("iframe");
       bridge.hidden = true; document.body.appendChild(bridge);
-      patch(bridge.contentWindow ?? undefined);
-      bridge.contentWindow?.open(target, "_blank");
+      patch(bridge.contentWindow ?? undefined, event.source as Window);
+      const handle = bridge.contentWindow?.open(target ?? "about:blank", typeof event.data.name === "string" ? event.data.name : "_blank");
+      if (handle) bridgeHandles.set(id, handle);
       bridge.remove();
     }
   };
