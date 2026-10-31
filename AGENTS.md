@@ -28,3 +28,4 @@
 - The Xbox home shelves list only titles the user has installed; unowned games stay in the store.
 - The cloud relay explicitly allowlists verified provider asset hosts and rewrites dynamic iframe/script URLs as well as static markup; portal-only relaying leaves games blocked on separate CDN hosts.
 - Provider game-only entry overrides live in the shared cloud relay resolver, retaining original catalog URLs and installed IDs so launch repairs do not discard libraries.
+- Retrora's frontend location defaults are repaired before Scramjet rewriting in the shared transport adapter; preserve its virtual origin for terrain, account redirects and online sockets without buffering engine or range downloads.
