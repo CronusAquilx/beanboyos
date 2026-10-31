@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cloudRelayUrl, rewriteRelayText, upstreamFromRelay } from "./cloud-relay";
+import { cloudRelayUrl, needsIsolation, rewriteRelayText, rewriteSetCookie, upstreamFromRelay } from "./cloud-relay";
 
 describe("cloud game relay", () => {
   it("relays catalog game ports through Astra's own domain", () => {
@@ -10,6 +10,18 @@ describe("cloud game relay", () => {
     expect(cloudRelayUrl("https://evil.example/")).toBeNull();
     expect(upstreamFromRelay("/api/public/cg/https/evil.example/", "")).toBeNull();
     expect(upstreamFromRelay("/api/public/cg/https/csjs.live/../x", "")).toBeNull();
+  });
+  it("relays every regular cloud game, isolating only the big ports", () => {
+    expect(cloudRelayUrl("https://krunker.io/")).toBe("/api/public/cg/https/krunker.io/");
+    expect(cloudRelayUrl("https://www.crazygames.com/game/buildnow-gg")).not.toBeNull();
+    expect(needsIsolation("csjs.live")).toBe(true);
+    expect(needsIsolation("krunker.io")).toBe(false);
+  });
+  it("leaves account-based streaming services on the full proxy", () => {
+    expect(cloudRelayUrl("https://play.geforcenow.com/")).toBeNull();
+  });
+  it("scopes game login cookies to the game's relay path", () => {
+    expect(rewriteSetCookie("sid=1; Domain=.krunker.io; Path=/; Secure; SameSite=None", "/api/public/cg/https/krunker.io")).toBe("sid=1; Secure; Path=/api/public/cg/https/krunker.io/; SameSite=Lax");
   });
   it("keeps GTA V on its tuned relay", () => {
     expect(cloudRelayUrl("https://fiveplay.lol/")).toBeNull();

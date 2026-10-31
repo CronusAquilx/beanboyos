@@ -18,6 +18,9 @@ export function resolvePopupTarget(raw: string, base: string): string | null {
   if (!value || value === "about:blank") return null;
   try {
     const u = new URL(value, base);
+    // Relayed game pages live under the cloud relay; recover the game's real address.
+    const relay = u.pathname.match(/^\/api\/public\/cg\/(https?)\/([^/]+)(\/.*)?$/);
+    if (relay) return `${relay[1]}://${relay[2]}${relay[3] ?? "/"}${u.search}${u.hash}`;
     // Already-proxied addresses carry the real address after the proxy prefix.
     if (u.pathname.startsWith(PREFIX)) {
       const path = u.pathname.slice(PREFIX.length);

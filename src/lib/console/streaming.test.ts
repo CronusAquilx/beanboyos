@@ -25,8 +25,8 @@ describe("Game thumbnails", () => {
     expect(fromArcade({ id: 0, name: "Bowmasters", author: "", file: "0.html", cover: "0.png" }).cover).toBe("/api/public/games/cover/0.png");
   });
   it("gives every cloud game a thumbnail of its own site", () => {
-    const one = CATALOG.find(g => g.url === "https://1v1.lol/")!;
-    expect(one.cover).toContain("https://1v1.lol/");
+    const one = CATALOG.find(g => g.url === "https://krunker.io/")!;
+    expect(one.cover).toContain("https://krunker.io/");
   });
 });
 
