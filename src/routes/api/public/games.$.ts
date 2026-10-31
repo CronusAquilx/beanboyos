@@ -40,7 +40,7 @@ try{window.caches}catch(e){try{Object.defineProperty(window,"caches",{value:cs()
 try{window.indexedDB}catch(e){try{Object.defineProperty(window,"indexedDB",{value:undefined,configurable:true})}catch(_){}}
 try{navigator.serviceWorker}catch(e){try{Object.defineProperty(navigator,"serviceWorker",{value:undefined,configurable:true})}catch(_){}}
 try{document.cookie}catch(e){Object.defineProperty(document,"cookie",{get:function(){return""},set:function(){},configurable:true})}
-window.open=function(u){if(u){try{parent.postMessage({bbPopup:1,url:new URL(String(u),location.href).href},"*")}catch(e){}}return null};
+window.open=function(u,n){var id="auth-"+Math.random().toString(36).slice(2),closed=false,href="about:blank";function send(action,v){try{parent.postMessage({bbPopup:1,id:id,action:action,url:v||"",name:n||"astra-game-signin"},"*")}catch(e){}}function nav(v){try{href=new URL(String(v),location.href).href;send("navigate",href)}catch(e){}}var loc={get href(){return href},set href(v){nav(v)},assign:nav,replace:nav};var handle={get closed(){return closed},get location(){return loc},set location(v){nav(v)},close:function(){closed=true;send("close","")},focus:function(){},postMessage:function(d){send("message","")}};try{href=u?new URL(String(u),location.href).href:"about:blank"}catch(e){}send("open",href);return handle};
 document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(a&&a.target&&a.target!=="_self"){e.preventDefault();window.open(a.href)}},true);
 addEventListener("pointerdown",function(){try{window.focus()}catch(e){}},true);
 addEventListener("load",function(){try{window.focus()}catch(e){}});
@@ -85,10 +85,10 @@ export const Route = createFileRoute("/api/public/games/$")({
           const [, host, ...rest] = parts;
           if (!host || !CDN_HOSTS.includes(host) || !rest.length || rest.some((x) => x === ".." || x === ".")) return new Response("Not found", { status: 404 });
           const upstream = await fetch(`https://${host}/${rest.join("/")}${new URL(request.url).search}`, {
-            headers: request.headers.get("range") ? { range: request.headers.get("range")! } : {},
+            headers: request.headers.get("range") ? { range: request.headers.get("range") ?? "" } : {},
           });
           if (!upstream.ok && upstream.status !== 206) return new Response("Not found", { status: upstream.status === 404 ? 404 : 502, headers: { "access-control-allow-origin": "*" } });
-          const ext = (rest[rest.length - 1]!.split(".").pop() ?? "").toLowerCase();
+          const ext = (rest.at(-1)?.split(".").pop() ?? "").toLowerCase();
           const headers = new Headers({ "content-type": MIME[ext] ?? upstream.headers.get("content-type") ?? "application/octet-stream", "cache-control": "public, max-age=86400", "access-control-allow-origin": "*" });
           for (const h of ["content-range", "accept-ranges"]) { const v = upstream.headers.get(h); if (v) headers.set(h, v); }
           if (TEXT_EXT.has(ext)) {
@@ -104,7 +104,7 @@ export const Route = createFileRoute("/api/public/games/$")({
           if (!rest.every((x) => SAFE.test(x) && x !== "..")) return new Response("Not found", { status: 404 });
           const res = await fetch(`${RAW}/html/main/${rest.map(encodeURIComponent).join("/")}`);
           if (!res.ok) return new Response("Not found", { status: 404 });
-          const ext = (rest[rest.length - 1]!.split(".").pop() ?? "").toLowerCase();
+          const ext = (rest.at(-1)?.split(".").pop() ?? "").toLowerCase();
           const h = { "content-type": MIME[ext] ?? "application/octet-stream", "cache-control": "public, max-age=86400", "access-control-allow-origin": "*" };
           if (TEXT_EXT.has(ext)) return new Response(rewrite(await res.text(), origin), { headers: h });
           return new Response(res.body, { headers: h });
