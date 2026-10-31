@@ -17,7 +17,7 @@ describe("Retrora virtual location", () => {
   });
   it("keeps range responses and their streams unchanged", async () => {
     const response = { status: 206, body: new Response("pak bytes").body, headers: [["content-range", "bytes 0-8/5000000000"]] };
-    const transport = withRetroraCompatibility({ request: async () => response });
+    const transport = withRetroraCompatibility({ request: async (_url: URL) => response });
     expect(await transport.request(new URL("https://retrora.org/gamefiles/1.8.1/data.pak"))).toBe(response);
   });
 });
