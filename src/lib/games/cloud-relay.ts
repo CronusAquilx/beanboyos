@@ -18,7 +18,13 @@ const ACCOUNT_SERVICES = ["www.xbox.com", "xbox.com", "play.geforcenow.com", "no
 const VIRTUAL_ORIGIN_GAMES = ["retrora.lol", "www.retrora.lol", "retrora.org", "api.retrora.org"];
 
 // Verified BuildNow GG dependencies: the portal and actual Unity game are on different hosts.
-const GAME_ASSET_HOSTS = ["games.crazygames.com", "builds.crazygames.com", "buildnow-gg.game-files.crazygames.com", "sdk.crazygames.com", "images.crazygames.com", "model.crazygames.com"];
+const GAME_ASSET_HOSTS = ["games.crazygames.com", "builds.crazygames.com", "buildnow-gg.game-files.crazygames.com", "files.crazygames.com", "videos.crazygames.com", "sdk.crazygames.com", "images.crazygames.com", "model.crazygames.com", "cdn.cyberpunk2077.lol", "cp2077-port.fn-web-worker.workers.dev"];
+
+// Keep catalog URLs/installed IDs stable, but play the provider's current game-only frame.
+// The portal mixes outdated cached builds, consent UI and recommendations into gameplay.
+const GAME_ENTRIES: Record<string, string> = {
+  "https://www.crazygames.com/game/buildnow-gg": "https://games.crazygames.com/en_US/buildnow-gg/index.html",
+};
 
 const hostOf = (url: string) => { try { return [new URL(url).hostname.toLowerCase()]; } catch { return []; } };
 const withWww = (h: string) => (h.startsWith("www.") ? [h, h.slice(4)] : [h, `www.${h}`]);
@@ -27,7 +33,7 @@ const RELAY_HOSTS = new Set(
   [...GAME_ASSET_HOSTS, ...CLOUD_GAMES.flatMap((g) => hostOf(g.url)).flatMap(withWww)]
     .filter((h) => !OWN_RELAY.includes(h) && !ACCOUNT_SERVICES.includes(h) && !VIRTUAL_ORIGIN_GAMES.includes(h)),
 );
-const ISOLATED_HOSTS = new Set(AAA_GAMES.flatMap((g) => hostOf(g.url)).flatMap(withWww));
+const ISOLATED_HOSTS = new Set([...AAA_GAMES.flatMap((g) => hostOf(g.url)).flatMap(withWww), "cdn.cyberpunk2077.lol", "cp2077-port.fn-web-worker.workers.dev"]);
 
 export const isRelayHost = (host: string) => RELAY_HOSTS.has(host.toLowerCase());
 /** Big ports need SharedArrayBuffer; regular games stay non-isolated so sign-in popups and embeds work. */
@@ -37,8 +43,10 @@ export const needsIsolation = (host: string) => ISOLATED_HOSTS.has(host.toLowerC
 export function cloudRelayUrl(url: string): string | null {
   let u: URL;
   try { u = new URL(url); } catch { return null; }
+  const entry = GAME_ENTRIES[`${u.origin}${u.pathname.replace(/\/$/, "")}`];
+  if (entry) { const next = new URL(entry); next.search = u.search; next.hash = u.hash; u = next; }
   if (!/^https?:$/.test(u.protocol) || !isRelayHost(u.hostname)) return null;
-  return `${CLOUD_RELAY_PREFIX}/${u.protocol.slice(0, -1)}/${u.host}${u.pathname}${u.search}`;
+  return `${CLOUD_RELAY_PREFIX}/${u.protocol.slice(0, -1)}/${u.host}${u.pathname}${u.search}${u.hash}`;
 }
 
 /** Parses a relay path back into the upstream URL; null for anything outside the catalog. */

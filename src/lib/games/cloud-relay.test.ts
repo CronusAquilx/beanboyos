@@ -37,6 +37,8 @@ describe("cloud game relay", () => {
     expect(html).toBe('<script src="/api/public/cg/https/csjs.live/b/main.js"></script><img src="/api/public/cg/https/csjs.live/x.png">');
   });
   it("keeps BuildNow GG's separate game frame and Unity files inside the relay", () => {
+    expect(cloudRelayUrl("https://www.crazygames.com/game/buildnow-gg")).toBe("/api/public/cg/https/games.crazygames.com/en_US/buildnow-gg/index.html");
+    expect(cloudRelayUrl("https://files.crazygames.com/buildnow-gg/225/Build/Build/game.wasm.br")).toBe("/api/public/cg/https/files.crazygames.com/buildnow-gg/225/Build/Build/game.wasm.br");
     expect(cloudRelayUrl("https://buildnow-gg.game-files.crazygames.com/unity/unity2020/Build/game.wasm")).toBe("/api/public/cg/https/buildnow-gg.game-files.crazygames.com/unity/unity2020/Build/game.wasm");
     const html = rewriteRelayText('<iframe src="https://games.crazygames.com/en_US/buildnow-gg/index.html"></iframe><script integrity="sha256-old" src="https://builds.crazygames.com/main.js"></script>', "/api/public/cg/https/www.crazygames.com", "html", "www.crazygames.com");
     expect(html).toBe('<iframe src="/api/public/cg/https/games.crazygames.com/en_US/buildnow-gg/index.html"></iframe><script src="/api/public/cg/https/builds.crazygames.com/main.js"></script>');
@@ -44,5 +46,13 @@ describe("cloud game relay", () => {
   it("preserves absolute URL literals required by provider scripts", () => {
     const js = rewriteRelayText('new URL("https://games.crazygames.com/en_US/buildnow-gg/index.html")', "https://app.example/api/public/cg/https/www.crazygames.com", "js", "www.crazygames.com");
     expect(js).toBe('new URL("https://app.example/api/public/cg/https/games.crazygames.com/en_US/buildnow-gg/index.html")');
+  });
+  it("relays both verified Cyberpunk launch and engine asset origins with isolation", () => {
+    for (const host of ["cdn.cyberpunk2077.lol", "cp2077-port.fn-web-worker.workers.dev"]) {
+      expect(cloudRelayUrl(`https://${host}/k/play/runtime/game-files.json`)).toBe(`/api/public/cg/https/${host}/k/play/runtime/game-files.json`);
+      expect(needsIsolation(host)).toBe(true);
+    }
+    const js = rewriteRelayText('boot({cfOrigin:"https://cdn.cyberpunk2077.lol",cfFallback:"https://cp2077-port.fn-web-worker.workers.dev"})', "https://app.example/api/public/cg/https/cyberpunk2077.lol", "js", "cyberpunk2077.lol");
+    expect(js).toBe('boot({cfOrigin:"https://app.example/api/public/cg/https/cdn.cyberpunk2077.lol",cfFallback:"https://app.example/api/public/cg/https/cp2077-port.fn-web-worker.workers.dev"})');
   });
 });
