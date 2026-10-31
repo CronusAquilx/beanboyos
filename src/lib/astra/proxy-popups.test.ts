@@ -20,6 +20,9 @@ describe("game sign-in routing", () => {
   it("rejects non-web popup destinations", () => {
     expect(resolvePopupTarget("javascript:alert(1)", "https://1v1.lol/")).toBeNull();
   });
+  it("decodes both controller and frame IDs in a real proxy address", () => {
+    expect(resolvePopupTarget(`/scramjet/p/controller123/frame456/${encodeURIComponent(login)}`, "https://1v1.lol/")).toBe(login);
+  });
   it("opens sign-in separately through the proxy before the game load event", () => {
     const game = document.createElement("iframe"); document.body.append(game);
     const separate = document.createElement("iframe"); document.body.append(separate);

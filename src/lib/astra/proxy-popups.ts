@@ -13,7 +13,8 @@ export function resolvePopupTarget(raw: string, base: string): string | null {
     if (u.pathname.startsWith(PREFIX)) {
       const path = u.pathname.slice(PREFIX.length);
       // Controller prefixes include a frame ID before the encoded destination.
-      const encoded = /^https?%3A/i.test(path) ? path : path.slice(path.indexOf("/") + 1);
+      const encoded = path.match(/(?:^|\/)(https?%3A.*)$/i)?.[1];
+      if (!encoded) return null;
       const inner = decodeURIComponent(encoded) + u.search + u.hash;
       return /^https?:\/\//i.test(inner) ? inner : null;
     }
