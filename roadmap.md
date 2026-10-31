@@ -1,5 +1,10 @@
 # Birchbeat import roadmap
 
+## Current request — console social features
+- [ ] Add opt-in player handles, friend requests, blocking, private text parties, global chat and friends activity.
+- [ ] Add shared social access and game/movie/music sharing across console layouts, plus privacy settings.
+- [ ] Validate permissions, persistence, live updates and console presentation with tests and signed-in checks.
+
 ## Current request — Retrora black screen
 - [x] Reproduced malformed terrain addresses and local-host account bypass from unrewritten frontend location defaults; repaired the module before Scramjet rewriting for all transports.
 - [x] Passed 29 focused regression tests and clean preview compilation; proxied terrain download returned 200 with 1,248,504 bytes, and match address retains Retrora's hostname.
