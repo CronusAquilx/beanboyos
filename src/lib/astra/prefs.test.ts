@@ -26,6 +26,6 @@ describe("persisted appearance switching", () => {
     expect(JSON.parse(localStorage.getItem("astra-prefs") || "{}").accent).toBe("gold");
     setPrefs({ layout: "launcher" });
     expect(JSON.parse(localStorage.getItem("astra-prefs") || "{}").accent).toBe("sky");
-    expect(document.documentElement.dataset.sidebarWidth).toBe("wide");
+    expect(document.documentElement.dataset["sidebarWidth"]).toBe("wide");
   });
 });
