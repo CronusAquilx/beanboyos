@@ -25,6 +25,8 @@
 - [ ] Verify signed-in launches and real FPS gains — signed-in cloud launch verified; FPS measurement requires playtesting on real GPU hardware.
 
 ## PS5 media rework (Oct 31)
+- [x] Request a separate named Google window, preserve nested-frame callbacks and fix delayed fallback navigation; ten tests pass and browser displays proxied Google sign-in in a 520×720 window without replacing the game.
+- [ ] Verify completed Google login back into 1v1.LOL — Google screen verified independently; actual game connection failed and automatic preview sign-in cannot match the requesting user's account.
 - [x] Repair Google/Firebase blank-window handoff and native popup lifetime; nine regression tests pass and browser reaches Google's proxied sign-in screen without closing. Completed 1v1 sign-in remains in the account/playtesting check below.
 - [x] Fix game sign-in replacing gameplay: early interception and arcade bridge open a separate proxied window; routing tests and browser popup check pass.
 - [x] Music, Movies and AI open inside a PS5-style frame (no sidebar) while Console Mode is on.
