@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { usePrefs } from "@/lib/astra/prefs";
 import { openProxied } from "@/lib/astra/proxy";
+import { attachProxiedPopups } from "@/lib/astra/proxy-popups";
 import { Button } from "@/components/ui/button";
 import { gameRelayUrl, useGameplayPerformance, type GameQuality } from "@/lib/games/performance";
 
@@ -47,15 +48,10 @@ function Play() {
     if (started && direct) { window.location.href = direct; return; }
     const iframe = ref.current;
     if (!started || !iframe || !url) return;
-    const keepInside = () => {
-      try {
-        const w = iframe.contentWindow as (Window & { open: typeof window.open }) | null;
-        if (w) w.open = ((u?: string | URL) => { if (u) w.location.href = String(u); return null; }) as typeof window.open;
-      } catch { /* ignore */ }
-    };
-    iframe.addEventListener("load", keepInside);
+    // Sign-in popups (e.g. "Sign in with Google") open in a proxied overlay instead of escaping the proxy.
+    const detach = attachProxiedPopups(iframe, url, prefs);
     openProxied(iframe, url, prefs).catch((e) => setError(e instanceof Error ? e.message : String(e)));
-    return () => iframe.removeEventListener("load", keepInside);
+    return detach;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started, url, direct, prefs.transport, prefs.wisp]);
 
