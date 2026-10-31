@@ -18,5 +18,7 @@
 - Browser proxy transports must live inside `createClientOnlyFn` so Worker module initialization never evaluates browser WASM transport packages.
 - Opening choices and explicit account confirmation are document-scoped through VisitProvider; persisted preferences or restored auth sessions never mark a new visit complete, and standalone gameplay bypasses this flow.
 - Console media and arcade launches use router navigation to retain the current document's visit confirmation; cloud games alone open the standalone player tab.
-- Console game artwork uses bundled original genre illustrations through one shared artwork resolver, preserving the no-official-cover-art constraint across home, store and library.
+- Console game artwork goes through one shared resolver: the game's source thumbnail first (arcade cover, cloud site screenshot), bundled genre illustration as fallback.
+- In Console Mode, media/app routes render in ConsoleAppFrame instead of AppShell so console users never see the classic sidebar.
+- Every embedded third-party page (movie sources, streaming apps, games) loads via openProxied, and window.open popups go through attachProxiedPopups so sign-ins stay inside the proxy.
 - Shared authentication and arcade views live in components rather than exported route components, preventing route splitting from pulling browser-only dependencies into the server entry.
