@@ -22,3 +22,4 @@
 - In Console Mode, media/app routes render in ConsoleAppFrame instead of AppShell so console users never see the classic sidebar.
 - Every embedded third-party page loads via openProxied; install popup interception before page scripts. OAuth popups request named native windows sharing the game's proxy context and retain the actual calling frame as opener; fallback handles must proxy delayed about:blank navigation so Firebase handoffs do not disappear. Sandboxed arcade messages remain source-validated.
 - Shared authentication and arcade views live in components rather than exported route components, preventing route splitting from pulling browser-only dependencies into the server entry.
+- Xbox Series X screens compose the shared catalog, library actions and authenticated console routes; skin-scoped styles and a reusable guide preserve Sony and regular layouts.
