@@ -247,6 +247,186 @@ export type Database = {
         }
         Relationships: []
       }
+      social_blocks: {
+        Row: {
+          target_id: string
+          user_id: string
+        }
+        Insert: {
+          target_id: string
+          user_id: string
+        }
+        Update: {
+          target_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_friends: {
+        Row: {
+          accepted: boolean
+          created_at: string
+          id: string
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          accepted?: boolean
+          created_at?: string
+          id?: string
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          accepted?: boolean
+          created_at?: string
+          id?: string
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      social_members: {
+        Row: {
+          joined: boolean
+          party_id: string
+          user_id: string
+        }
+        Insert: {
+          joined?: boolean
+          party_id: string
+          user_id: string
+        }
+        Update: {
+          joined?: boolean
+          party_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_members_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "social_parties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_parties: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      social_players: {
+        Row: {
+          allow_requests: boolean
+          handle: string
+          share_activity: boolean
+          status: string
+          user_id: string
+        }
+        Insert: {
+          allow_requests?: boolean
+          handle: string
+          share_activity?: boolean
+          status?: string
+          user_id: string
+        }
+        Update: {
+          allow_requests?: boolean
+          handle?: string
+          share_activity?: boolean
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_posts: {
+        Row: {
+          channel: string
+          content: string
+          created_at: string
+          id: string
+          link: string | null
+          party_id: string | null
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          content: string
+          created_at?: string
+          id?: string
+          link?: string | null
+          party_id?: string | null
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          content?: string
+          created_at?: string
+          id?: string
+          link?: string | null
+          party_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "social_parties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_reports: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       threads: {
         Row: {
           created_at: string
@@ -439,6 +619,9 @@ export type Database = {
         }
         Returns: boolean
       }
+      social_action: { Args: { action: string; payload?: Json }; Returns: Json }
+      social_blocked: { Args: { a: string; b: string }; Returns: boolean }
+      social_member: { Args: { p: string; u: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
