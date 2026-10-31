@@ -1,5 +1,10 @@
 # Birchbeat import roadmap
 
+## Current request — game launch repairs and Freebuild
+- [ ] Diagnose and repair BuildNow GG's missing game/failed launch and Cyberpunk's slice/Link failed error.
+- [ ] Add the verified Freebuild entry through the shared proxy launch flow.
+- [ ] Run regression tests and verify actual game startup where the upstream service permits it.
+
 ## Current request — Fortnite browser games
 - [x] Add Retrora Season 1 community Fortnite entry with complete-site proxy routing to preserve its virtual hostname, account navigation and online sockets.
 - [x] Add separately labelled official Fortnite Xbox Cloud and GeForce NOW options; launch-routing and catalog tests pass (16 related tests).
