@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
+import { ProxiedPlayer } from "@/components/movies/ProxiedPlayer";
 
 export const Route = createFileRoute("/_authenticated/movies/free/$videoId")({
   validateSearch: z.object({ source: z.string().optional() }),
@@ -16,7 +17,7 @@ function Free() {
     <div className="h-full overflow-y-auto p-3">
       <Link to="/movies" className="inline-flex items-center gap-1 text-sm text-muted-foreground"><ArrowLeft className="size-4" /> Movies</Link>
       <div className="mx-auto mt-3 aspect-video max-w-5xl overflow-hidden rounded-lg bg-muted">
-        <iframe src={src} className="size-full" allowFullScreen allow="autoplay; fullscreen" />
+        <ProxiedPlayer src={src} title="Free movie player" />
       </div>
     </div>
   );
