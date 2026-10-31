@@ -1,8 +1,9 @@
 # Birchbeat import roadmap
 
 ## Current request — Retrora black screen
-- [ ] Reproduce the black screen after Retrora Launch and repair the failing proxy path.
-- [ ] Run focused regression tests and verify the game startup through the proxy.
+- [x] Reproduced malformed terrain addresses and local-host account bypass from unrewritten frontend location defaults; repaired the module before Scramjet rewriting for all transports.
+- [x] Passed 29 focused regression tests and clean preview compilation; proxied terrain download returned 200 with 1,248,504 bytes, and match address retains Retrora's hostname.
+- [ ] Verify signed-in Launch and full rendering — requires user's Retrora session and a working graphics adapter; automated browser is redirected to login after the corrected account check. Full gameplay remains unverified.
 
 ## Current request — game launch repairs and Freebuild
 - [x] Repair BuildNow GG with its current game-only entry and verified files.crazygames.com assets; browser reached the rendered lobby and ConnectedToMasterServer after first-load downloads.
