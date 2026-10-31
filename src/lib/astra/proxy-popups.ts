@@ -25,19 +25,20 @@ export function resolvePopupTarget(raw: string, base: string): string | null {
 
 /**
  * Keep sign-in popups (Google, Discord, etc.) opened by a proxied page inside the proxy:
- * the popup becomes an overlay frame that also goes through the proxy, and it can talk
+ * the popup becomes a separate proxied window (overlay fallback), and it can talk
  * back to the page that opened it.
  */
 export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, prefs: Prefs) {
   let overlay: HTMLDivElement | null = null;
   let popup: Window | null = null;
-  const close = () => { popup?.close(); popup = null; overlay?.remove(); overlay = null; };
+  let detachPopup = () => {};
+  const close = () => { detachPopup(); detachPopup = () => {}; popup?.close(); popup = null; overlay?.remove(); overlay = null; };
   const patch = (initializedWindow?: Window) => {
     type Win = Window & { open: typeof window.open };
     let w: Win | null = null;
     try { w = (initializedWindow ?? iframe.contentWindow) as Win | null; } catch { return; }
     if (!w) return;
-    const opener = w;
+    const opener = iframe.contentWindow ?? w;
     try {
       w.open = ((u?: string | URL) => {
         let current = baseUrl;
@@ -81,14 +82,13 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
         };
         wireUp();
         frame.addEventListener("load", wireUp);
-        const detachInit = onProxyFrameInit(frame, wireUp);
-        frame.addEventListener("load", () => { if (!frame.isConnected) detachInit(); });
+        detachPopup = onProxyFrameInit(frame, wireUp);
         if (target) openProxied(frame, target, prefs).catch(close);
         return frame.contentWindow;
       }) as typeof window.open;
       w.document.addEventListener("click", (event) => {
-        const link = (event.target as Element | null)?.closest?.("a[href]");
-        if (!(link instanceof w.HTMLAnchorElement)) return;
+        const link = (event.target as Element | null)?.closest?.<HTMLAnchorElement>("a[href]");
+        if (!link) return;
         const target = resolvePopupTarget(link.href, baseUrl);
         const isLogin = target && /^(accounts\.google\.com|accounts\.youtube\.com|discord\.com|login\.microsoftonline\.com)$/.test(new URL(target).hostname);
         if (link.target && link.target !== "_self" || isLogin) {
