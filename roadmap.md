@@ -1,5 +1,9 @@
 # Birchbeat import roadmap
 
+## Current request — BuildNow GG and original 1v1.LOL
+- [x] Repair BuildNow GG's separate provider frames/CDN assets and absolute URL construction; browser reached its rendered menu with ConnectedToMasterServer. 13 related tests pass. Full match and Google sign-in remain unverified; preview account does not match requesting user.
+- [x] Verify availability of the real 1v1.LOL online service; official status page confirms permanent shutdown November 3, 2025. Removed replacement wording from BuildNow GG.
+
 ## Current request — Xbox Series X and Google sign-in
 - [x] Build Xbox Series X home, library, store, media, themed settings/profile and guide using the existing catalog.
 - [x] Expose Xbox Series X in welcome setup and layout settings; verified developer sign-in, app installation/library readback, guide, settings, Music without classic sidebar, and phone layout.

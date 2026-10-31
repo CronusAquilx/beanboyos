@@ -26,3 +26,4 @@
 
 - Every cloud catalog game (except GTA V, which has its own relay, and account-based streaming services, which need the full proxy) launches via the same-domain relay in src/lib/games/cloud-relay.ts; only big AAA ports get cross-origin isolation so sign-in popups keep their opener, and it only relays catalog hosts so it never becomes an open proxy.
 - The Xbox home shelves list only titles the user has installed; unowned games stay in the store.
+- The cloud relay explicitly allowlists verified provider asset hosts and rewrites dynamic iframe/script URLs as well as static markup; portal-only relaying leaves games blocked on separate CDN hosts.
