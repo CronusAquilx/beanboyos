@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Home, Library, ShoppingBag, Film, Settings, User, X, Download, Heart, Gamepad2 } from "lucide-react";
+import { Home, Library, ShoppingBag, Film, Settings, User, X, Download, Heart, Gamepad2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useConsoleCtx } from "@/lib/console/ctx";
 import { useConsoleInput } from "@/lib/console/nav";
@@ -20,7 +20,7 @@ export function XboxGuide({ close }: { close: () => void }) {
     }
   });
   const jump = (path: string) => { close(); void go(path); };
-  const links = [{ label: "Home", icon: Home, path: "/console" }, { label: "My games & apps", icon: Library, path: "/console/library" }, { label: "Game Store", icon: ShoppingBag, path: "/console/store" }, { label: "Entertainment", icon: Film, path: "/console/media" }, { label: "Settings", icon: Settings, path: "/console/settings" }];
+  const links = [{ label: "Home", icon: Home, path: "/console" }, { label: "My games & apps", icon: Library, path: "/console/library" }, { label: "Game Store", icon: ShoppingBag, path: "/console/store" }, { label: "Friends & parties", icon: Users, path: "/console/social" }, { label: "Entertainment", icon: Film, path: "/console/media" }, { label: "Settings", icon: Settings, path: "/console/settings" }];
   return <div className="xbox-guide-overlay fixed inset-0 z-50 bg-console-ink/65" onClick={close}>
     <aside ref={panel} role="dialog" aria-modal="true" aria-label="Xbox guide" className="xbox-guide flex h-full w-full max-w-sm flex-col bg-console-panel p-6" onClick={e => e.stopPropagation()}>
       <div className="mb-6 flex items-center gap-4"><Gamepad2 className="size-7 text-xbox-accent"/><h2 className="text-xl">Guide</h2><Button variant="console" size="console" aria-label="Close guide" title="Close guide" onClick={close} className="ml-auto size-10"><X/></Button></div>
