@@ -1,5 +1,11 @@
 # Birchbeat import roadmap
 
+## Current request — Xbox Series X and Google sign-in
+- [ ] Build Xbox Series X home, library, store, media, settings/profile and guide using the existing catalog.
+- [ ] Expose Xbox Series X in welcome setup and layout settings; verify signed-in console flows.
+- [ ] Repair blank/instant-closing game OAuth window and add regression coverage.
+- [ ] Verify actual game Google handoff where network/account access permits.
+
 ## Console Mode
 - [x] Fix console media/installed-game document reloads and add bundled original game thumbnails; launch and visit-state regression tests pass.
 - [ ] Verify these updated launches with a real account — automatic sign-in could not match the requesting user; needs preview sign-in.
