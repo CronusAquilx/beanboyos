@@ -1,10 +1,10 @@
 # Birchbeat import roadmap
 
 ## Current request — Windows desktop
-- [ ] Add Windows setup/settings selection and separately saved appearance.
-- [ ] Build desktop, Start/search, taskbar, tabbed movable/resizable windows, minimize/maximize/snap and task view.
-- [ ] Reuse games, music, movies, browser and social views; preserve standalone cloud gameplay.
-- [ ] Verify signed-in desktop interactions and compact layout; run window and appearance tests.
+- [x] Add Windows setup/settings selection and separately saved appearance.
+- [x] Build desktop, Start/search, taskbar, tabbed movable/resizable windows, minimize/maximize/snap and task view.
+- [x] Reuse games, music, movies, browser, AI, voice, memory, settings and social views; preserve standalone cloud gameplay.
+- [x] Verify developer-account desktop tabs/detachment, minimize/restore, snap, dragging, maximize, Start search, app opening and saved accent; no overflow at 764×546 or 390×844, 17 regression tests pass and preview compilation clean. Existing provider playback/account checks remain listed separately below.
 
 ## Current request — layout personalization
 - [x] Add separately saved light/dark modes, 20 color themes, 10 accents, text/corner/spacing controls, backgrounds, tile sizing, sidebar/rail widths, motion and clocks for Sony, Xbox Series X, Classic and Launcher in settings.
