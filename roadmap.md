@@ -1,5 +1,9 @@
 # Birchbeat import roadmap
 
+## Current request — BuildNow GG and original 1v1.LOL
+- [ ] Diagnose and repair BuildNow GG's missing page/game assets; verify the online launch.
+- [ ] Verify availability of the real 1v1.LOL online service; do not present a replacement as the original.
+
 ## Current request — Xbox Series X and Google sign-in
 - [x] Build Xbox Series X home, library, store, media, themed settings/profile and guide using the existing catalog.
 - [x] Expose Xbox Series X in welcome setup and layout settings; verified developer sign-in, app installation/library readback, guide, settings, Music without classic sidebar, and phone layout.
