@@ -1,5 +1,10 @@
 # Birchbeat import roadmap
 
+## Current request — layout personalization
+- [ ] Add separately saved theme, accent and customization controls for Sony, Xbox Series X, Classic and Launcher in settings.
+- [ ] Apply appearance across console screens and media frames without changing gameplay preferences.
+- [ ] Test independent saved choices and verify settings changes across layouts.
+
 ## Current request — console social features
 - [x] Add opt-in player handles, friend requests, blocking, private text parties, global chat and friends activity.
 - [x] Add shared social access and game/movie/music sharing across console layouts, plus privacy settings.
