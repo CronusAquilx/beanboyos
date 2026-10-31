@@ -13,6 +13,9 @@ export const CLOUD_RELAY_PREFIX = "/api/public/cg";
 const OWN_RELAY = ["fiveplay.lol", "www.fiveplay.lol", "gta.deloskiyt.pl"];
 /** Account-based streaming services need their multi-site sign-in, which only the full proxy carries. */
 const ACCOUNT_SERVICES = ["www.xbox.com", "xbox.com", "play.geforcenow.com", "now.gg", "cloud.boosteroid.com", "luna.amazon.com"];
+// Retrora derives account redirects and online match sockets from its original hostname.
+// Use the complete-site proxy's virtual origin, cookies and WebSocket transport, not a path relay.
+const VIRTUAL_ORIGIN_GAMES = ["retrora.lol", "www.retrora.lol", "retrora.org", "api.retrora.org"];
 
 // Verified BuildNow GG dependencies: the portal and actual Unity game are on different hosts.
 const GAME_ASSET_HOSTS = ["games.crazygames.com", "builds.crazygames.com", "buildnow-gg.game-files.crazygames.com", "sdk.crazygames.com", "images.crazygames.com", "model.crazygames.com"];
@@ -22,7 +25,7 @@ const withWww = (h: string) => (h.startsWith("www.") ? [h, h.slice(4)] : [h, `ww
 
 const RELAY_HOSTS = new Set(
   [...GAME_ASSET_HOSTS, ...CLOUD_GAMES.flatMap((g) => hostOf(g.url)).flatMap(withWww)]
-    .filter((h) => !OWN_RELAY.includes(h) && !ACCOUNT_SERVICES.includes(h)),
+    .filter((h) => !OWN_RELAY.includes(h) && !ACCOUNT_SERVICES.includes(h) && !VIRTUAL_ORIGIN_GAMES.includes(h)),
 );
 const ISOLATED_HOSTS = new Set(AAA_GAMES.flatMap((g) => hostOf(g.url)).flatMap(withWww));
 

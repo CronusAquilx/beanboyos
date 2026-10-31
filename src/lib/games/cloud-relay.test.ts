@@ -21,6 +21,11 @@ describe("cloud game relay", () => {
   it("leaves account-based streaming services on the full proxy", () => {
     expect(cloudRelayUrl("https://play.geforcenow.com/")).toBeNull();
   });
+  it("keeps Retrora's original hostname and online sockets on the complete-site proxy", () => {
+    expect(cloudRelayUrl("https://retrora.lol/")).toBeNull();
+    expect(cloudRelayUrl("https://retrora.lol/play/?release=1.8.1")).toBeNull();
+    expect(upstreamFromRelay("/api/public/cg/https/api.retrora.org/api/v1/me", "")).toBeNull();
+  });
   it("scopes game login cookies to the game's relay path", () => {
     expect(rewriteSetCookie("sid=1; Domain=.krunker.io; Path=/; Secure; SameSite=None", "/api/public/cg/https/krunker.io")).toBe("sid=1; Secure; Path=/api/public/cg/https/krunker.io/; SameSite=Lax");
   });

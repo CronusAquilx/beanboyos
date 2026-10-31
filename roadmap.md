@@ -1,5 +1,11 @@
 # Birchbeat import roadmap
 
+## Current request — Fortnite browser games
+- [x] Add Retrora Season 1 community Fortnite entry with complete-site proxy routing to preserve its virtual hostname, account navigation and online sockets.
+- [x] Add separately labelled official Fortnite Xbox Cloud and GeForce NOW options; launch-routing and catalog tests pass (16 related tests).
+- [x] Verify Retrora's styled login page, player script and 1.8.1 game manifest through the existing Epoxy proxy; all returned successfully.
+- [ ] Verify actual Retrora match and official Fortnite stream — requires provider accounts; no Retrora account supplied and requesting user has no matching preview account for the default authenticated relay. No completed gameplay claimed.
+
 ## Current request — BuildNow GG and original 1v1.LOL
 - [x] Repair BuildNow GG's separate provider frames/CDN assets and absolute URL construction; browser reached its rendered menu with ConnectedToMasterServer. 13 related tests pass. Full match and Google sign-in remain unverified; preview account does not match requesting user.
 - [x] Verify availability of the real 1v1.LOL online service; official status page confirms permanent shutdown November 3, 2025. Removed replacement wording from BuildNow GG.

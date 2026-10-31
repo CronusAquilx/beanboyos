@@ -3,6 +3,9 @@ import { AAA_GAMES } from "./aaa";
 /** Cloud gaming services: big games (GTA V, Call of Duty, Fortnite) stream from their servers. */
 export const CLOUD_GAMES = [
   ...AAA_GAMES,
+  { name: "Fortnite Season 1 — Retrora (community port)", url: "https://retrora.lol/" },
+  { name: "Fortnite — Xbox Cloud (official)", url: "https://www.xbox.com/play/games/fortnite/BT5P2X999VH2" },
+  { name: "Fortnite — GeForce NOW (official)", url: "https://play.geforcenow.com/" },
   { name: "Xbox Cloud (GTA V, COD)", url: "https://www.xbox.com/play" },
   { name: "GeForce NOW", url: "https://play.geforcenow.com/" },
   { name: "now.gg", url: "https://now.gg/" },
