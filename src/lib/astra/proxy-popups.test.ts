@@ -83,6 +83,7 @@ describe("game sign-in routing", () => {
     const separate = document.createElement("iframe"); document.body.append(separate);
     const gameWindow = game.contentWindow; const separateWindow = separate.contentWindow;
     if (!gameWindow || !separateWindow) throw new Error("Missing test windows");
+    Object.defineProperty(separateWindow, "closed", { value: false, configurable: true });
     vi.spyOn(separateWindow, "close").mockImplementation(() => {});
     const nativeOpen = vi.spyOn(window, "open").mockReturnValue(separateWindow);
     const detach = attachProxiedPopups(game, "https://1v1.lol/", DEFAULT_PREFS);
