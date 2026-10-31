@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { Bot, Film, Music } from "lucide-react";
+import { Bot, Film, Music, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useClock } from "@/lib/console/ctx";
@@ -10,6 +10,7 @@ import { RoomFollower } from "@/components/RoomFollower";
 import { NowPlayingBar } from "@/components/music/NowPlayingBar";
 import { cn } from "@/lib/utils";
 import { Avatar, BackButton } from "./shared";
+import { XboxGuide } from "./xbox/XboxGuide";
 
 const TABS = [
   { to: "/music", match: "/music", label: "Music", icon: Music },
@@ -28,16 +29,18 @@ export function ConsoleAppFrame({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const clock = useClock();
   const p = usePrefs();
+  const [guide, setGuide] = useState(false);
   const { user } = useAuth();
   const meta = user?.user_metadata as { full_name?: string; name?: string } | undefined;
   const initial = (meta?.full_name ?? meta?.name ?? user?.email ?? "P")[0]?.toUpperCase() ?? "P";
   const home = () => void navigate({ to: "/console/media" });
   // Controller "B" / Escape returns to the console media home, like a PS5 app.
-  useConsoleInput((a) => { if (a === "menu") home(); });
+  useConsoleInput((a) => { if (a === "menu") { if (p.console === "series") setGuide(true); else home(); } }, !guide);
   return (
-    <div className="dark console-shell fixed inset-0 flex flex-col bg-console-background text-console-foreground">
+    <div className={cn("dark console-shell fixed inset-0 flex flex-col bg-console-background text-console-foreground", p.console === "series" && "xbox-series")}>
       <header className="console-topbar flex shrink-0 items-center gap-4 border-b border-console-foreground/10 px-4 py-3 md:px-10">
         <BackButton onClick={home} />
+        {p.console === "series" && <Button variant="console" size="console" aria-label="Open Xbox guide" title="Open Xbox guide" onClick={() => setGuide(true)} className="xbox-control size-10 shrink-0"><Gamepad2/></Button>}
         <nav className="flex min-w-0 gap-5 overflow-x-auto md:gap-8">
           {TABS.map((t) => {
             const active = pathname === t.match || pathname.startsWith(`${t.match}/`);
@@ -58,6 +61,7 @@ export function ConsoleAppFrame({ children }: { children: ReactNode }) {
         {children}
       </main>
       <NowPlayingBar />
+      {guide && <XboxGuide close={() => setGuide(false)}/>}
     </div>
   );
 }

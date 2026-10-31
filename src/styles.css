@@ -258,6 +258,7 @@ html.perf-lite body { background-image: none !important; }
   --color-console-online: var(--console-online);
   --color-console-particle: var(--console-particle);
   --color-console-panel: var(--console-panel);
+  --color-xbox-accent: var(--xbox-accent);
 }
 :root {
   --console-background: oklch(0.13 0.009 260);
@@ -266,6 +267,7 @@ html.perf-lite body { background-image: none !important; }
   --console-online: oklch(0.78 0.16 155);
   --console-particle: oklch(0.9 0.06 85);
   --console-panel: oklch(0.2 0.012 260);
+  --xbox-accent: oklch(0.76 0.2 138);
   --console-art: linear-gradient(150deg, oklch(0.45 0.1 var(--console-art-hue)), oklch(0.22 0.045 var(--console-art-secondary)));
   --console-scene: linear-gradient(135deg, oklch(0.15 0.025 var(--console-hue)), oklch(0.33 0.08 var(--console-hue)), oklch(0.13 0.012 var(--console-secondary)));
   --console-profile-scene: var(--console-scene);
@@ -333,3 +335,37 @@ html.perf-lite body { background-image: none !important; }
 .proxy-popup-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; font-size: 14px; }
 .proxy-popup-bar button { border-radius: 999px; padding: 4px 12px; background: color-mix(in oklch, var(--console-foreground) 12%, transparent); }
 .proxy-popup-frame { flex: 1; width: 100%; border: 0; background: var(--console-foreground); }
+
+/* Xbox Series X stays scoped to its selected console skin. */
+.xbox-series { --console-background: oklch(0.13 0.002 150); --console-panel: oklch(0.22 0.004 150); --console-online: var(--xbox-accent); font-family: "Segoe UI", var(--font-sans); }
+.xbox-series .console-shade { background: color-mix(in oklch, var(--console-ink) 65%, transparent); }
+.xbox-series .console-page { animation-duration: .25s; }
+.xbox-series .console-art::before { display: none; }
+.xbox-series main { background-image: none !important; }
+.xbox-series .console-art:has(svg) { background: var(--console-panel); }
+.xbox-series button .console-art > svg { width: 48px; height: 48px; }
+.xbox-series .console-app-body { --background: var(--console-background); --card: var(--console-panel); }
+.xbox-series .console-topbar nav { gap: 16px; }
+.xbox-series .console-avatar { background: var(--xbox-accent); color: var(--console-ink); }
+.xbox-series button:focus-visible, .xbox-control:hover, .xbox-selected { outline: 3px solid var(--xbox-accent); outline-offset: 3px; }
+.xbox-control { border-radius: 3px; }
+.xbox-game-backdrop { animation: console-reveal .35s ease-out; }
+.xbox-home-shade { background: linear-gradient(0deg, var(--console-background) 3%, color-mix(in oklch, var(--console-ink) 65%, transparent) 48%, color-mix(in oklch, var(--console-ink) 25%, transparent)), linear-gradient(90deg, color-mix(in oklch, var(--console-ink) 60%, transparent), transparent); }
+.xbox-home-intro { height: clamp(170px, 28vh, 330px); }
+.xbox-game-tile { width: 112px; height: 112px; }
+.xbox-game-tile:first-child { width: 170px; height: 170px; }
+.xbox-recent-row { min-height: 194px; scrollbar-width: none; }
+.xbox-recent-row::-webkit-scrollbar { display: none; }
+.xbox-guide { box-shadow: var(--console-shadow); animation: xbox-guide-in .2s ease-out; }
+.xbox-series .console-feature { position: relative; }
+@keyframes xbox-guide-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@media (max-width: 639px) {
+  .xbox-topbar { gap: 8px; padding: 18px 16px; }
+  .xbox-topbar nav { gap: 0; }
+  .xbox-topbar nav button { width: 35px; height: 38px; }
+  .xbox-home-intro { height: 175px; }
+  .xbox-game-tile { width: 94px; height: 94px; }
+  .xbox-game-tile:first-child { width: 126px; height: 126px; }
+  .xbox-recent-row { min-height: 150px; }
+}
+@media (prefers-reduced-motion: reduce) { .xbox-guide { animation: none; } }

@@ -58,6 +58,13 @@ export function gamePopupUrl(iframe: HTMLIFrameElement, target: string): string 
   return frame ? new URL(frame.prefix + frame.controller.config.codec.encode(target), window.location.origin).href : null;
 }
 
+/** Arcade frames have no controller; allocate a routing context without embedding OAuth. */
+export async function preparePopupRouting(iframe: HTMLIFrameElement, prefs: Prefs): Promise<void> {
+  if (activeFrames.has(iframe)) return;
+  const controller = await getProxyController(prefs);
+  if (!activeFrames.has(iframe)) activeFrames.set(iframe, controller.createFrame(iframe));
+}
+
 export function onProxyFrameInit(iframe: HTMLIFrameElement, callback: (win: Window) => void) {
   frameInitializers.set(iframe, callback);
   return () => { frameInitializers.delete(iframe); };
