@@ -49,7 +49,7 @@ describe("cloud game relay", () => {
   });
   it("never lowercases URL constructors in inline engine callbacks", () => {
     const html = rewriteRelayText('<script>locateFile: name => new URL("/runtime/" + name, document.baseURI).href</script><style>a{background:url(/logo.png)}</style>', "https://app.example/api/public/cg/https/cyberpunk2077.lol", "html", "cyberpunk2077.lol");
-    expect(html).toBe('<script>locateFile: name => new URL("https://app.example/api/public/cg/https/cyberpunk2077.lol/runtime/" + name, document.baseURI).href</script><style>a{background:url(https://app.example/api/public/cg/https/cyberpunk2077.lol/logo.png)}</style>');
+    expect(html).toBe('<script>locateFile: name => new URL("/runtime/" + name, document.baseURI).href</script><style>a{background:url(https://app.example/api/public/cg/https/cyberpunk2077.lol/logo.png)}</style>');
   });
   it("relays both verified Cyberpunk launch and engine asset origins with isolation", () => {
     for (const host of ["cdn.cyberpunk2077.lol", "cp2077-port.fn-web-worker.workers.dev"]) {

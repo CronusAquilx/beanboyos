@@ -78,7 +78,7 @@ export function rewriteRelayText(text: string, base: string, kind: "html" | "css
     out = out.replace(/(\simagesrcset|\ssrcset)(\s*=\s*["'])([^"']*)/gi, (_m, a: string, q: string, v: string) => a + q + v.replace(/(^|,\s*)\/(?!\/|api\/public\/cg\/)/g, `$1${base}/`));
   }
   // Inline scripts also contain new URL('/...'): preserve the constructor's case.
-  if (kind === "html" || kind === "css") out = out.replace(/(url\(\s*["']?)\/(?!\/|api\/public\/cg\/)/gi, (_match, prefix: string) => `${prefix}${base}/`);
+  if (kind === "html" || kind === "css") out = out.replace(/(new\s+)?(url\(\s*["']?)\/(?!\/|api\/public\/cg\/)/gi, (match, constructor: string | undefined, prefix: string) => constructor ? match : `${prefix}${base}/`);
   return out;
 }
 
