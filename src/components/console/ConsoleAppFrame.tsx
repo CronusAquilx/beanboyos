@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Avatar, BackButton } from "./shared";
 import { XboxGuide } from "./xbox/XboxGuide";
 import { SocialAccess } from "@/components/social/SocialAccess";
+import { WallpaperEffects } from "@/components/astra/WallpaperEffects";
 
 const TABS = [
   { to: "/music", match: "/music", label: "Music", icon: Music },
@@ -58,7 +59,8 @@ export function ConsoleAppFrame({ children }: { children: ReactNode }) {
           {p.showClock && <span className="hidden text-lg sm:block">{clock}</span>}
         </div>
       </header>
-      <main className="console-app-body min-h-0 flex-1 overflow-hidden bg-background text-foreground">
+      <WallpaperEffects/>
+      <main data-app={pathname.split("/")[1]} className="console-app-body native-app relative min-h-0 flex-1 overflow-hidden bg-background text-foreground">
         <RoomFollower />
         {children}
       </main>

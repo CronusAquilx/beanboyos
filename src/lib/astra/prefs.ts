@@ -142,6 +142,8 @@ function apply() {
   r.dataset["tileSize"] = look.tileSize;
   r.dataset["artwork"] = look.artwork ? "on" : "off";
   r.dataset["sidebarWidth"] = look.sidebarWidth;
+  r.dataset["wallpaperMotion"] = look.wallpaperMotion;
+  r.dataset["appTransparency"] = look.appTransparency;
   r.dataset["consoleTone"] = state.palette !== "default" ? "palette" : look.mode;
   r.dataset["consoleAccent"] = state.accent === "star" ? "native" : "custom";
   r.style.setProperty("--custom-bg-dim", `${state.customBgDim}%`);
@@ -189,7 +191,7 @@ export function resetPrefs() {
 }
 
 export function getAppearance(p: Prefs, layout: AppearanceLayout = activeLayout(p)): AppearanceProfile {
-  return p.appearances[layout] ?? initialAppearance(p);
+  return { ...initialAppearance(p), ...p.appearances[layout] };
 }
 
 export function setAppearance(layout: AppearanceLayout, patch: Partial<AppearanceProfile>) {
