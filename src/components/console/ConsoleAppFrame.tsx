@@ -35,7 +35,7 @@ export function ConsoleAppFrame({ children }: { children: ReactNode }) {
   // Controller "B" / Escape returns to the console media home, like a PS5 app.
   useConsoleInput((a) => { if (a === "menu") home(); });
   return (
-    <div className="dark console-shell fixed inset-0 flex flex-col bg-console-background text-console-foreground">
+    <div className={cn("dark console-shell fixed inset-0 flex flex-col bg-console-background text-console-foreground", p.console === "series" && "xbox-series")}>
       <header className="console-topbar flex shrink-0 items-center gap-4 border-b border-console-foreground/10 px-4 py-3 md:px-10">
         <BackButton onClick={home} />
         <nav className="flex min-w-0 gap-5 overflow-x-auto md:gap-8">

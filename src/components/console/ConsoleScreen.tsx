@@ -5,13 +5,13 @@ import { SonyStore } from "./sony/SonyStore";
 import { SonyLibrary } from "./sony/SonyLibrary";
 import { SonySettings } from "./sony/SonySettings";
 import { SonyProfile } from "./sony/SonyProfile";
+import { XboxScreen } from "./xbox/XboxScreen";
 
 export type ConsoleScreenName = "home" | "media" | "apps" | "store" | "library" | "settings" | "profile";
 
-// Part A: only the Sony skin exists. Parts B and C add the Xbox skins here.
 export function ConsoleScreen({ screen }: { screen: ConsoleScreenName }) {
   const skin = resolveSkin(usePrefs().console);
-  void skin;
+  if (skin === "series" && screen !== "settings" && screen !== "profile") return <XboxScreen screen={screen} />;
   if (screen === "media") return <SonyHome media />;
   if (screen === "apps") return <SonyLibrary apps />;
   if (screen === "store") return <SonyStore />;
