@@ -1,5 +1,10 @@
 # Birchbeat import roadmap
 
+## Current request — Retrora black screen
+- [x] Reproduced malformed terrain addresses and local-host account bypass from unrewritten frontend location defaults; repaired the module before Scramjet rewriting for all transports.
+- [x] Passed 29 focused regression tests and clean preview compilation; proxied terrain download returned 200 with 1,248,504 bytes, and match address retains Retrora's hostname.
+- [ ] Verify signed-in Launch and full rendering — requires user's Retrora session and a working graphics adapter; automated browser is redirected to login after the corrected account check. Full gameplay remains unverified.
+
 ## Current request — game launch repairs and Freebuild
 - [x] Repair BuildNow GG with its current game-only entry and verified files.crazygames.com assets; browser reached the rendered lobby and ConnectedToMasterServer after first-load downloads.
 - [x] Repair Cyberpunk's slice/Link failed error: CSS URL replacement corrupted inline new URL constructors and diverted engine data to the wrong origin. Preserve constructors and relay both verified Cyberpunk CDN hosts; browser reached Starting Engine at 57% with no page errors.
