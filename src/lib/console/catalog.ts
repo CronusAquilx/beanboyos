@@ -27,7 +27,7 @@ export function tileHue(title: string) { return [...title].reduce((h, c) => (h *
 export const CATALOG: ConsoleGame[] = CLOUD_GAMES.map(g => ({ id: `cloud:${g.url}:${g.name}`, title: g.name, tagline: "Ready when you are.", genre: "Cloud games", hue: tileHue(g.name), badge: "Free", kind: "cloud", url: g.url, cover: siteThumbnail(g.url) }));
 /** Live screenshot of the game's own website, used as its thumbnail. */
 export function siteThumbnail(url: string) { return `https://image.thum.io/get/width/640/crop/800/noanimate/${url}`; }
-export function fromArcade(g: ArcadeGame): ConsoleGame { return { id: `arcade:${g.file}`, title: g.name, tagline: g.author, genre: "Arcade", hue: tileHue(g.name), badge: "Free", kind: "arcade", file: g.file, cover: g.cover ? `/api/public/games/cover/${g.cover}` : undefined }; }
+export function fromArcade(g: ArcadeGame): ConsoleGame { return { id: `arcade:${g.file}`, title: /^1v1\.lol$/i.test(g.name.trim()) ? `${g.name} (Offline)` : g.name, tagline: g.author, genre: "Arcade", hue: tileHue(g.name), badge: "Free", kind: "arcade", file: g.file, cover: g.cover ? `/api/public/games/cover/${g.cover}` : undefined }; }
 export const consoleCatalogOptions = queryOptions({
   queryKey: ["console-catalog"], staleTime: 60 * 60 * 1000,
   queryFn: async () => {
