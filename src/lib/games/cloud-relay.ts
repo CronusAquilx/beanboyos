@@ -14,11 +14,14 @@ const OWN_RELAY = ["fiveplay.lol", "www.fiveplay.lol", "gta.deloskiyt.pl"];
 /** Account-based streaming services need their multi-site sign-in, which only the full proxy carries. */
 const ACCOUNT_SERVICES = ["www.xbox.com", "xbox.com", "play.geforcenow.com", "now.gg", "cloud.boosteroid.com", "luna.amazon.com"];
 
+// Verified BuildNow GG dependencies: the portal and actual Unity game are on different hosts.
+const GAME_ASSET_HOSTS = ["games.crazygames.com", "builds.crazygames.com", "buildnow-gg.game-files.crazygames.com", "sdk.crazygames.com", "images.crazygames.com", "model.crazygames.com"];
+
 const hostOf = (url: string) => { try { return [new URL(url).hostname.toLowerCase()]; } catch { return []; } };
 const withWww = (h: string) => (h.startsWith("www.") ? [h, h.slice(4)] : [h, `www.${h}`]);
 
 const RELAY_HOSTS = new Set(
-  CLOUD_GAMES.flatMap((g) => hostOf(g.url)).flatMap(withWww)
+  [...GAME_ASSET_HOSTS, ...CLOUD_GAMES.flatMap((g) => hostOf(g.url)).flatMap(withWww)]
     .filter((h) => !OWN_RELAY.includes(h) && !ACCOUNT_SERVICES.includes(h)),
 );
 const ISOLATED_HOSTS = new Set(AAA_GAMES.flatMap((g) => hostOf(g.url)).flatMap(withWww));
@@ -52,7 +55,13 @@ const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 export function rewriteRelayText(text: string, base: string, kind: "html" | "css" | "js", host: string): string {
   const abs = new RegExp(`(?:https?:)?//${esc(host)}(?=[/"'\`?#)\\s]|$)`, "gi");
   let out = text.replace(abs, base);
+  for (const assetHost of GAME_ASSET_HOSTS) {
+    if (assetHost === host) continue;
+    out = out.replace(new RegExp(`(?:https?:)?//${esc(assetHost)}(?=[/"'\`?#)\\s]|$)`, "gi"), `${CLOUD_RELAY_PREFIX}/https/${assetHost}`);
+  }
   if (kind === "html") {
+    // Rewritten JS/CSS no longer matches the upstream integrity hash.
+    out = out.replace(/\s(?:integrity|nonce)\s*=\s*(?:"[^"]*"|'[^']*')/gi, "");
     out = out.replace(/(\s(?:src|href|action|poster|data)\s*=\s*["'])\/(?!\/|api\/public\/cg\/)/gi, `$1${base}/`);
     out = out.replace(/(\simagesrcset|\ssrcset)(\s*=\s*["'])([^"']*)/gi, (_m, a: string, q: string, v: string) => a + q + v.replace(/(^|,\s*)\/(?!\/|api\/public\/cg\/)/g, `$1${base}/`));
   }
@@ -71,7 +80,9 @@ export function rewriteSetCookie(cookie: string, base: string): string {
  * same-origin or the game's own host) inside the relay.
  */
 export function relayShim(base: string, host: string): string {
-  return `<script>(function(){var B=${JSON.stringify(base)},H=${JSON.stringify(host)},P="/api/public/cg/";function r(u){if(u instanceof URL)u=u.href;if(typeof u!=="string")return u;if(u.charAt(0)==="/"&&u.charAt(1)!=="/"){return u.indexOf(P)===0?u:B+u}try{var x=new URL(u,location.href);if(x.pathname.indexOf(P)===0)return u;if(x.host===location.host||x.host===H||x.host==="www."+H||"www."+x.host===H){if(/^https?:$/.test(x.protocol))return B+x.pathname+x.search+x.hash}}catch(e){}return u}
+  return `<script>(function(){var B=${JSON.stringify(base)},H=${JSON.stringify(host)},A=${JSON.stringify(GAME_ASSET_HOSTS)},P="/api/public/cg/";function r(u){if(u instanceof URL)u=u.href;if(typeof u!=="string")return u;if(u.charAt(0)==="/"&&u.charAt(1)!=="/"){return u.indexOf(P)===0?u:B+u}try{var x=new URL(u,location.href);if(x.pathname.indexOf(P)===0)return u;if(A.indexOf(x.hostname)!==-1&&/^https?:$/.test(x.protocol))return P+x.protocol.slice(0,-1)+"/"+x.host+x.pathname+x.search+x.hash;if(x.host===location.host||x.host===H||x.host==="www."+H||"www."+x.host===H){if(/^https?:$/.test(x.protocol))return B+x.pathname+x.search+x.hash}}catch(e){}return u}
+var sa=Element.prototype.setAttribute;Element.prototype.setAttribute=function(n,v){if(/^(src|href|action|poster|data)$/i.test(n))v=r(v);return sa.call(this,n,v)};
+[["HTMLIFrameElement","src"],["HTMLScriptElement","src"],["HTMLLinkElement","href"],["HTMLImageElement","src"],["HTMLMediaElement","src"],["HTMLSourceElement","src"]].forEach(function(t){var C=window[t[0]];if(!C)return;var d=Object.getOwnPropertyDescriptor(C.prototype,t[1]);if(d&&d.set)Object.defineProperty(C.prototype,t[1],Object.assign({},d,{set:function(v){d.set.call(this,r(v))}}))});
 var f=window.fetch;if(f)window.fetch=function(i,o){try{if(typeof i==="string"||i instanceof URL)i=r(i);else if(i&&i.url){var n=r(i.url);if(n!==i.url)i=new Request(n,i)}}catch(e){}return f.call(this,i,o)};
 var x=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(){try{arguments[1]=r(String(arguments[1]))}catch(e){}return x.apply(this,arguments)};
 ["Worker","SharedWorker"].forEach(function(n){var W=window[n];if(!W)return;var N=function(u,o){return new W(r(String(u)),o)};N.prototype=W.prototype;window[n]=N});

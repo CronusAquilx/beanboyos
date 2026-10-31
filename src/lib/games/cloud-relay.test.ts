@@ -10,6 +10,7 @@ describe("cloud game relay", () => {
     expect(cloudRelayUrl("https://evil.example/")).toBeNull();
     expect(upstreamFromRelay("/api/public/cg/https/evil.example/", "")).toBeNull();
     expect(upstreamFromRelay("/api/public/cg/https/csjs.live/../x", "")).toBeNull();
+    expect(cloudRelayUrl("https://unknown.game-files.crazygames.com/")).toBeNull();
   });
   it("relays every regular cloud game, isolating only the big ports", () => {
     expect(cloudRelayUrl("https://krunker.io/")).toBe("/api/public/cg/https/krunker.io/");
@@ -29,5 +30,10 @@ describe("cloud game relay", () => {
   it("points root-relative game files at the relay", () => {
     const html = rewriteRelayText('<script src="/b/main.js"></script><img src="https://csjs.live/x.png">', "/api/public/cg/https/csjs.live", "html", "csjs.live");
     expect(html).toBe('<script src="/api/public/cg/https/csjs.live/b/main.js"></script><img src="/api/public/cg/https/csjs.live/x.png">');
+  });
+  it("keeps BuildNow GG's separate game frame and Unity files inside the relay", () => {
+    expect(cloudRelayUrl("https://buildnow-gg.game-files.crazygames.com/unity/unity2020/Build/game.wasm")).toBe("/api/public/cg/https/buildnow-gg.game-files.crazygames.com/unity/unity2020/Build/game.wasm");
+    const html = rewriteRelayText('<iframe src="https://games.crazygames.com/en_US/buildnow-gg/index.html"></iframe><script integrity="sha256-old" src="https://builds.crazygames.com/main.js"></script>', "/api/public/cg/https/www.crazygames.com", "html", "www.crazygames.com");
+    expect(html).toBe('<iframe src="/api/public/cg/https/games.crazygames.com/en_US/buildnow-gg/index.html"></iframe><script src="/api/public/cg/https/builds.crazygames.com/main.js"></script>');
   });
 });
