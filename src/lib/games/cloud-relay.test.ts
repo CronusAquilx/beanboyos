@@ -47,6 +47,10 @@ describe("cloud game relay", () => {
     const js = rewriteRelayText('new URL("https://games.crazygames.com/en_US/buildnow-gg/index.html")', "https://app.example/api/public/cg/https/www.crazygames.com", "js", "www.crazygames.com");
     expect(js).toBe('new URL("https://app.example/api/public/cg/https/games.crazygames.com/en_US/buildnow-gg/index.html")');
   });
+  it("never lowercases URL constructors in inline engine callbacks", () => {
+    const html = rewriteRelayText('<script>locateFile: name => new URL("/runtime/" + name, document.baseURI).href</script><style>a{background:url(/logo.png)}</style>', "https://app.example/api/public/cg/https/cyberpunk2077.lol", "html", "cyberpunk2077.lol");
+    expect(html).toBe('<script>locateFile: name => new URL("https://app.example/api/public/cg/https/cyberpunk2077.lol/runtime/" + name, document.baseURI).href</script><style>a{background:url(https://app.example/api/public/cg/https/cyberpunk2077.lol/logo.png)}</style>');
+  });
   it("relays both verified Cyberpunk launch and engine asset origins with isolation", () => {
     for (const host of ["cdn.cyberpunk2077.lol", "cp2077-port.fn-web-worker.workers.dev"]) {
       expect(cloudRelayUrl(`https://${host}/k/play/runtime/game-files.json`)).toBe(`/api/public/cg/https/${host}/k/play/runtime/game-files.json`);
