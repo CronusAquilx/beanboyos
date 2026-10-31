@@ -1,10 +1,10 @@
 # Birchbeat import roadmap
 
 ## Current request — Xbox Series X and Google sign-in
-- [ ] Build Xbox Series X home, library, store, media, settings/profile and guide using the existing catalog.
-- [ ] Expose Xbox Series X in welcome setup and layout settings; verify signed-in console flows.
-- [ ] Repair blank/instant-closing game OAuth window and add regression coverage.
-- [ ] Verify actual game Google handoff where network/account access permits.
+- [x] Build Xbox Series X home, library, store, media, themed settings/profile and guide using the existing catalog.
+- [x] Expose Xbox Series X in welcome setup and layout settings; verified developer sign-in, app installation/library readback, guide, settings, Music without classic sidebar, and phone layout.
+- [x] Repair blank/instant-closing OAuth routing and add regression coverage; delayed Google sign-in loads in a native 520×720 window that remains open.
+- [ ] Verify completed Google login in the actual 1v1.LOL game — game host fails TLS connection from test network; Google credentials are not available for completion.
 
 ## Console Mode
 - [x] Fix console media/installed-game document reloads and add bundled original game thumbnails; launch and visit-state regression tests pass.
@@ -14,7 +14,8 @@
 - [x] Ask layout, device and content every new visit; always show matching login/account confirmation. Signed-out and restored-session flows verified.
 - [x] Finish Sony media, actual games/apps store and library, first-launch layout choice, profile/background settings and verification.
 - [x] Shared navigation, per-user library, Sony home/store/library/settings/profile.
-- [ ] Xbox Series and Xbox Classic screens and guides.
+- [x] Xbox Series X screens and guide.
+- [ ] Xbox Classic screens and guide — separate earlier follow-up, not part of Series X request.
 - [x] Sony settings picker, Home entry, documentation and verification.
 - [ ] Real controller hardware and individual provider gameplay validation — needs controller/GPU playtesting; the OvO provider stayed on its loading screen during the browser check.
 

@@ -1,7 +1,7 @@
 import { render, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ConsoleScreen } from "./ConsoleScreen";
-const mocks = vi.hoisted(() => ({ skin: "series", xbox: vi.fn(() => null), sony: vi.fn(() => null) }));
+const mocks = vi.hoisted(() => ({ skin: "series", xbox: vi.fn((_props: { screen: string }) => null), sony: vi.fn(() => null) }));
 vi.mock("@/lib/astra/prefs", () => ({ usePrefs: () => ({ console: mocks.skin }) }));
 vi.mock("./xbox/XboxScreen", () => ({ XboxScreen: mocks.xbox }));
 vi.mock("./sony/SonyHome", () => ({ SonyHome: mocks.sony }));
