@@ -13,7 +13,7 @@ describe("cloud game relay", () => {
   });
   it("relays every regular cloud game, isolating only the big ports", () => {
     expect(cloudRelayUrl("https://krunker.io/")).toBe("/api/public/cg/https/krunker.io/");
-    expect(cloudRelayUrl("https://games.crazygames.com/en_US/1v1-lol/index.html")).not.toBeNull();
+    expect(cloudRelayUrl("https://games.crazygames.com/en_US/buildnow-gg/index.html")).not.toBeNull();
     expect(needsIsolation("csjs.live")).toBe(true);
     expect(needsIsolation("krunker.io")).toBe(false);
   });

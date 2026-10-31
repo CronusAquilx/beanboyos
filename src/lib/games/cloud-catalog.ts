@@ -22,7 +22,7 @@ export const CLOUD_GAMES = [
   { name: "Zombs Royale", url: "https://zombsroyale.io/" },
   { name: "Ev.io", url: "https://ev.io/" },
   { name: "Kirka.io", url: "https://kirka.io/" },
-  { name: "1v1.LOL (Online)", url: "https://games.crazygames.com/en_US/1v1-lol/index.html" },
+  { name: "BuildNow GG (Online 1v1.LOL replacement)", url: "https://games.crazygames.com/en_US/buildnow-gg/index.html" },
   { name: "Doom (js-dos)", url: "https://dos.zone/doom-dec-1993/" },
   { name: "Quake (WebQuake)", url: "https://www.netquake.io/" },
   { name: "Polytrack", url: "https://www.kodub.com/apps/polytrack" },
