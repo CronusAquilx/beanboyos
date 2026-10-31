@@ -20,5 +20,5 @@
 - Console media and arcade launches use router navigation to retain the current document's visit confirmation; cloud games alone open the standalone player tab.
 - Console game artwork goes through one shared resolver: the game's source thumbnail first (arcade cover, cloud site screenshot), bundled genre illustration as fallback.
 - In Console Mode, media/app routes render in ConsoleAppFrame instead of AppShell so console users never see the classic sidebar.
-- Every embedded third-party page loads via openProxied; install popup interception at proxy frame initialization before page scripts. Sandboxed arcade games send source-validated popup messages to the shared handler, which opens a separate proxied sign-in window with overlay fallback so gameplay is not replaced.
+- Every embedded third-party page loads via openProxied; install popup interception before page scripts. OAuth popups use real windows sharing the game's proxy frame context so closed-state checks, cookies and opener callbacks work; sandboxed arcade messages are source-validated and use a proxied overlay fallback when no game proxy context exists.
 - Shared authentication and arcade views live in components rather than exported route components, preventing route splitting from pulling browser-only dependencies into the server entry.

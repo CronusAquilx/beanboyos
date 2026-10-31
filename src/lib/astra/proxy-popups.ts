@@ -1,5 +1,5 @@
 import type { Prefs } from "./prefs";
-import { onProxyFrameInit, openProxied } from "./proxy";
+import { gamePopupUrl, onProxyFrameInit, openProxied } from "./proxy";
 
 const PREFIX = "/scramjet/p/";
 
@@ -49,6 +49,35 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
         close();
         // Open synchronously while user activation is still available.
         popup = window.open("about:blank", "_blank");
+        const sharedUrl = target ? gamePopupUrl(iframe, target) : null;
+        // Firebase polls the returned window's closed state and uses its top-level
+        // opener/postMessage. An iframe masquerading as a popup breaks that contract.
+        if (popup && (sharedUrl || !target && gamePopupUrl(iframe, baseUrl))) {
+          const nativePopup = popup;
+          nativePopup.opener = opener;
+          const navigate = (raw: string | URL) => {
+            const next = resolvePopupTarget(String(raw), current);
+            const proxied = next ? gamePopupUrl(iframe, next) : null;
+            if (proxied) nativePopup.location.href = proxied;
+          };
+          if (sharedUrl) nativePopup.location.href = sharedUrl;
+          const locationHandle = {
+            get href() { try { return nativePopup.location.href; } catch { return ""; } },
+            set href(value: string) { navigate(value); },
+            assign: navigate, replace: navigate,
+          };
+          return new Proxy(nativePopup, {
+            get(win, key) {
+              if (key === "location") return locationHandle;
+              const value = Reflect.get(win, key, win);
+              return typeof value === "function" ? value.bind(win) : value;
+            },
+            set(win, key, value) {
+              if (key === "location") { navigate(value); return true; }
+              return Reflect.set(win, key, value, win);
+            },
+          });
+        }
         const owner = popup?.document ?? document;
         if (popup) {
           owner.title = "Game sign-in — Astra";
@@ -84,7 +113,11 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
         wireUp();
         frame.addEventListener("load", wireUp);
         detachPopup = onProxyFrameInit(frame, wireUp);
-        if (target) openProxied(frame, target, prefs).catch(close);
+        if (target) openProxied(frame, target, prefs).catch((error) => {
+          const message = owner.createElement("p");
+          message.textContent = `Sign-in couldn't load: ${error instanceof Error ? error.message : "Connection failed"}`;
+          owner.body.appendChild(message);
+        });
         return frame.contentWindow;
       }) as typeof window.open;
       w.document.addEventListener("click", (event) => {
