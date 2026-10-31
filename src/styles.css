@@ -343,6 +343,9 @@ html.perf-lite body { background-image: none !important; }
 .xbox-series .console-art::before { display: none; }
 .xbox-series main { background-image: none !important; }
 .xbox-series .console-art:has(svg) { background: var(--console-panel); }
+.xbox-series button .console-art > svg { width: 48px; height: 48px; }
+.xbox-series .console-app-body { --background: var(--console-background); --card: var(--console-panel); }
+.xbox-series .console-topbar nav { gap: 16px; }
 .xbox-series .console-avatar { background: var(--xbox-accent); color: var(--console-ink); }
 .xbox-series button:focus-visible, .xbox-control:hover, .xbox-selected { outline: 3px solid var(--xbox-accent); outline-offset: 3px; }
 .xbox-control { border-radius: 3px; }
