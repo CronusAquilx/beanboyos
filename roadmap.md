@@ -25,7 +25,7 @@
 - [ ] Verify signed-in launches and real FPS gains — signed-in cloud launch verified; FPS measurement requires playtesting on real GPU hardware.
 
 ## PS5 media rework (Oct 31)
-- [ ] Repair Google/Firebase popup lifetime and callback semantics; verify regression and actual browser behavior.
+- [x] Repair Google/Firebase blank-window handoff and native popup lifetime; nine regression tests pass and browser reaches Google's proxied sign-in screen without closing. Completed 1v1 sign-in remains in the account/playtesting check below.
 - [x] Fix game sign-in replacing gameplay: early interception and arcade bridge open a separate proxied window; routing tests and browser popup check pass.
 - [x] Music, Movies and AI open inside a PS5-style frame (no sidebar) while Console Mode is on.
 - [x] Game thumbnails come from each game's source (arcade covers, cloud site screenshots) with genre art fallback.
