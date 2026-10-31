@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { searchUrl, usePrefs, type Prefs } from "@/lib/astra/prefs";
 import { openProxied } from "@/lib/astra/proxy";
+import { attachProxiedPopups } from "@/lib/astra/proxy-popups";
 import { ArrowLeft, ArrowRight, ExternalLink, Globe, Home, Lock, Plus, RotateCw, Search, X } from "lucide-react";
 import { webSearch } from "@/lib/astra/web.functions";
 import { MobileMenuButton } from "@/components/astra/AppShell";
@@ -150,10 +151,11 @@ function ProxiedFrame({ url, title, prefs, onFail }: { url: string; title: strin
   useEffect(() => {
     let cancelled = false;
     setStatus("loading");
+    const detach = attachProxiedPopups(ref.current!, url, prefs);
     openProxied(ref.current!, url, prefs)
       .then(() => { if (!cancelled) setStatus("ready"); })
       .catch(() => { if (!cancelled) { setStatus("error"); onFail(); } });
-    return () => { cancelled = true; };
+    return () => { cancelled = true; detach(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url, prefs.transport, prefs.wisp]);
   if (status === "error") {

@@ -12,6 +12,7 @@ import { GuestScreen, HostParty } from "@/components/games/GameParty";
 import { MobileMenuButton } from "@/components/astra/AppShell";
 import { usePrefs } from "@/lib/astra/prefs";
 import { openProxied } from "@/lib/astra/proxy";
+import { attachProxiedPopups } from "@/lib/astra/proxy-popups";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, SlidersHorizontal } from "lucide-react";
 import { AutoMods } from "@/components/games/AutoMods";
@@ -302,20 +303,14 @@ function Sites({ list, storeKey, note, initial }: { list: readonly { name: strin
     setError(null);
     const iframe = ref.current;
     if (!iframe) return;
-    // Keep pop-ups ("open in new tab") inside this frame: a new tab has no proxy
-    // attached and shows 404.
-    const keepInside = () => {
-      spoofChrome(iframe.contentWindow);
-      try {
-        const w = iframe.contentWindow as (Window & { open: typeof window.open }) | null;
-        if (w) w.open = ((u?: string | URL) => { if (u) w.location.href = String(u); return null; }) as typeof window.open;
-      } catch { /* cross-origin, ignore */ }
-    };
+    // Pop-ups and sign-ins (e.g. Google login) open in a proxied overlay: a new tab has no proxy attached.
+    const keepInside = () => spoofChrome(iframe.contentWindow);
     iframe.addEventListener("load", keepInside);
+    const detach = attachProxiedPopups(iframe, current.url, prefs);
     const spoofTimer = setInterval(() => spoofChrome(iframe.contentWindow), 300);
     const spoofStop = setTimeout(() => clearInterval(spoofTimer), 15000);
     openProxied(iframe, current.url, prefs).catch((e) => setError(e instanceof Error ? e.message : String(e)));
-    return () => { clearInterval(spoofTimer); clearTimeout(spoofStop); iframe.removeEventListener("load", keepInside); iframe.src = "about:blank"; };
+    return () => { clearInterval(spoofTimer); clearTimeout(spoofStop); iframe.removeEventListener("load", keepInside); detach(); iframe.src = "about:blank"; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current.name, nonce, prefs.transport, prefs.wisp]);
 
