@@ -1,5 +1,10 @@
 # Birchbeat import roadmap
 
+## Current request — Fortnite browser games
+- [ ] Add verified Retrora community Fortnite entry with complete-site proxy routing.
+- [ ] Add clearly labelled official Fortnite browser streaming options and verify launch routing.
+- [ ] Check Retrora's proxied page and files; record any account/gameplay verification blocker.
+
 ## Current request — BuildNow GG and original 1v1.LOL
 - [x] Repair BuildNow GG's separate provider frames/CDN assets and absolute URL construction; browser reached its rendered menu with ConnectedToMasterServer. 13 related tests pass. Full match and Google sign-in remain unverified; preview account does not match requesting user.
 - [x] Verify availability of the real 1v1.LOL online service; official status page confirms permanent shutdown November 3, 2025. Removed replacement wording from BuildNow GG.
