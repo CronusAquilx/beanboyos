@@ -49,6 +49,12 @@ type Frame = import("@mercuryworkshop/scramjet-controller").Frame;
 
 let cache: { key: string; promise: Promise<Controller> } | null = null;
 let scriptsPromise: Promise<void> | null = null;
+const frameInitializers = new WeakMap<HTMLIFrameElement, (win: Window) => void>();
+
+export function onProxyFrameInit(iframe: HTMLIFrameElement, callback: (win: Window) => void) {
+  frameInitializers.set(iframe, callback);
+  return () => { frameInitializers.delete(iframe); };
+}
 
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -142,6 +148,11 @@ export async function openProxied(iframe: HTMLIFrameElement, url: string, prefs:
   try { c.setupMessagePort?.(); } catch { /* ignore */ }
   await new Promise((r) => setTimeout(r, 150));
   const frame = controller.createFrame(iframe);
+  // Run after Scramjet hooks, but before any page scripts can cache window.open.
+  const runtime = (globalThis as Record<string, any>)["$scramjet"];
+  runtime.Tap.tap(frame.hooks.init.post, ({ window: win }: { window: Window }) => {
+    frameInitializers.get(iframe)?.(win);
+  });
   frame.go(url);
   return frame;
 }
