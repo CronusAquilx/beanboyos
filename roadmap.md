@@ -1,5 +1,10 @@
 # Birchbeat import roadmap
 
+## Current request — distinct applications and effects
+- [ ] Redesign Windows music, movies, settings and other apps with desktop-specific layouts.
+- [ ] Give Sony and Xbox their own app presentation without changing Classic/Launcher.
+- [ ] Add separately saved animated wallpaper, particles and appearance controls; verify app interactions and settings.
+
 ## Current request — Windows desktop
 - [x] Add Windows setup/settings selection and separately saved appearance.
 - [x] Build desktop, Start/search, taskbar, tabbed movable/resizable windows, minimize/maximize/snap and task view.
