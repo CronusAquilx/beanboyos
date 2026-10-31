@@ -32,7 +32,7 @@ describe("game sign-in routing", () => {
     const original = gameWindow.location.href;
     const result = gameWindow.open(login, "_blank");
     expect(nativeOpen).toHaveBeenCalledWith("about:blank", "_blank");
-    expect(mocks.open).toHaveBeenCalledWith(expect.any(HTMLIFrameElement), login, DEFAULT_PREFS);
+    expect(mocks.open).toHaveBeenCalledWith(separateWindow.document.querySelector("iframe"), login, DEFAULT_PREFS);
     expect(gameWindow.location.href).toBe(original);
     expect(result?.opener).toBe(gameWindow);
     detach(); expect(close).toHaveBeenCalled();
