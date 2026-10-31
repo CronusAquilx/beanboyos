@@ -624,3 +624,28 @@ html[data-wallpaper-motion="zoom"] .windows-wallpaper, html[data-wallpaper-motio
   .native-app[data-app="chat"] .sky > div { padding: 24px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .windows-wallpaper, .console-backdrop > img, .xbox-game-backdrop img { animation: none !important; } }
+.ai-workspace-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 24px 0; }
+.ai-workspace-actions button { justify-content: flex-start; min-height: 64px; height: auto; white-space: normal; text-align: left; border-radius: 6px; padding: 16px; }
+.ai-workspace-status { display: flex; gap: 6px; align-items: center; margin-top: 16px; color: var(--muted-foreground); font-size: 11px; }
+.notes-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 20px; }
+.voice-studio-display { width: 100%; padding: 24px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); }
+.voice-waveform { display: flex; align-items: center; justify-content: center; gap: 5px; height: 120px; overflow: hidden; }
+.voice-waveform i { flex: 0 1 5px; min-width: 2px; height: 8px; background: var(--star); border-radius: 2px; }
+.voice-waveform i:nth-child(3n) { height: 25px; }
+.voice-waveform i:nth-child(5n) { height: 48px; }
+.voice-waveform i:nth-child(7n) { height: 68px; }
+.voice-waveform.is-live i { animation: voice-level .7s ease-in-out infinite alternate; }
+.voice-waveform.is-live i:nth-child(2n) { animation-delay: .25s; }
+@keyframes voice-level { to { transform: scaleY(.25); } }
+.browser-quick-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 24px; }
+.browser-quick-links button { flex-direction: column; width: 88px; height: 80px; gap: 12px; font-size: 12px; }
+.xbox-series .ai-workspace-actions button { border-radius: 2px; border-left: 3px solid var(--xbox-accent); }
+.xbox-series .voice-studio-display { border-radius: 2px; border-bottom: 3px solid var(--xbox-accent); }
+.console-shell:not(.xbox-series) .voice-studio-display { max-width: 700px; margin: auto; background: transparent; border: 0; border-bottom: 1px solid var(--console-accent); }
+.xbox-series .console-settings-app { max-width: 1200px; }
+.xbox-series .console-settings-categories { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; align-content: start; }
+.xbox-series .console-settings-categories > button { height: 120px; padding: 20px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; background: var(--console-panel); border: none; border-radius: 2px; gap: 12px; font-size: 16px; }
+.xbox-series .console-settings-categories > button span { flex: none; }
+.xbox-series .console-settings-categories > button:focus-visible { outline-color: var(--xbox-accent); }
+@media (max-width:639px) { .xbox-series .console-settings-categories { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@container (max-width:480px) { .ai-workspace-actions { gap: 8px; } .ai-workspace-actions button { padding: 10px; font-size: 12px; } }
