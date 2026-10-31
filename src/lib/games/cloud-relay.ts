@@ -39,8 +39,8 @@ const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 export function rewriteRelayText(text: string, base: string, kind: "html" | "css" | "js", host: string): string {
   const abs = new RegExp(`(?:https?:)?//${esc(host)}(?=[/"'\`?#)\\s]|$)`, "gi");
   let out = text.replace(abs, base);
-  if (kind === "html") out = out.replace(/(\s(?:src|href|action|poster|data)\s*=\s*["'])\/(?!\/)/gi, `$1${base}/`);
-  if (kind === "html" || kind === "css") out = out.replace(/url\(\s*(["']?)\/(?!\/)/gi, `url($1${base}/`);
+  if (kind === "html") out = out.replace(/(\s(?:src|href|action|poster|data)\s*=\s*["'])\/(?!\/|api\/public\/cg\/)/gi, `$1${base}/`);
+  if (kind === "html" || kind === "css") out = out.replace(/url\(\s*(["']?)\/(?!\/|api\/public\/cg\/)/gi, `url($1${base}/`);
   return out;
 }
 
