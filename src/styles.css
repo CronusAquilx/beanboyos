@@ -326,3 +326,10 @@ html.perf-lite body { background-image: none !important; }
 
 .console-login-form { --background: var(--console-background); --foreground: var(--console-foreground); --card: var(--console-panel); --primary: var(--console-foreground); --primary-foreground: var(--console-ink); --muted-foreground: color-mix(in oklch,var(--console-foreground) 60%,transparent); --border: color-mix(in oklch,var(--console-foreground) 20%,transparent); --input: var(--border); }
 .console-login-form input { color: var(--console-foreground); }
+
+/* Sign-in popups from proxied pages open as an overlay that stays inside the proxy. */
+.proxy-popup { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; background: color-mix(in oklch, var(--console-ink) 70%, transparent); }
+.proxy-popup-box { display: flex; flex-direction: column; width: min(520px, 100%); height: min(720px, 100%); overflow: hidden; border-radius: 12px; background: var(--console-panel); color: var(--console-foreground); box-shadow: var(--console-shadow); }
+.proxy-popup-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; font-size: 14px; }
+.proxy-popup-bar button { border-radius: 999px; padding: 4px 12px; background: color-mix(in oklch, var(--console-foreground) 12%, transparent); }
+.proxy-popup-frame { flex: 1; width: 100%; border: 0; background: var(--console-foreground); }
