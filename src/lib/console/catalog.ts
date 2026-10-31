@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getConsoleArcade } from "./catalog.functions";
 import { CLOUD_GAMES } from "@/lib/games/cloud-catalog";
 import { STREAMING_APPS } from "./streaming";
+import { listDeveloperGames } from "@/lib/games/developer-games.functions";
 
 export type ConsoleGame = {
   id: string; title: string; tagline: string; genre: string; hue: number;
@@ -13,7 +14,7 @@ export type ConsoleGame = {
   /** Streaming apps must be downloaded from the store before they open. */
   installable?: boolean;
 };
-export type ArcadeGame = { id: number; name: string; author: string; file: string; cover: string };
+export type ArcadeGame = { id: number; name: string; author: string; file: string; cover: string; url?: string };
 export const APPS: ConsoleGame[] = [
   { id: "app-music", title: "Music", tagline: "Your sound. Your next favorite.", genre: "Media", hue: 160, badge: "Included", kind: "app", url: "/music" },
   { id: "app-movies", title: "Movies", tagline: "A little escape. A whole new world.", genre: "Media", hue: 35, badge: "Included", kind: "app", url: "/movies" },
@@ -27,14 +28,16 @@ export function tileHue(title: string) { return [...title].reduce((h, c) => (h *
 export const CATALOG: ConsoleGame[] = CLOUD_GAMES.map(g => ({ id: `cloud:${g.url}:${g.name}`, title: g.name, tagline: "Ready when you are.", genre: "Cloud games", hue: tileHue(g.name), badge: "Free", kind: "cloud", url: g.url, cover: siteThumbnail(g.url) }));
 /** Live screenshot of the game's own website, used as its thumbnail. */
 export function siteThumbnail(url: string) { return `https://image.thum.io/get/width/640/crop/800/noanimate/${url}`; }
-export function fromArcade(g: ArcadeGame): ConsoleGame { return { id: `arcade:${g.file}`, title: /^1v1\.lol$/i.test(g.name.trim()) ? `${g.name} (Offline)` : g.name, tagline: g.author, genre: "Arcade", hue: tileHue(g.name), badge: "Free", kind: "arcade", file: g.file, cover: g.cover ? `/api/public/games/cover/${g.cover}` : undefined }; }
+export function fromArcade(g: ArcadeGame): ConsoleGame { return { id: `arcade:${g.file}`, title: /^1v1\.lol$/i.test(g.name.trim()) ? `${g.name} (Offline)` : g.name, tagline: g.author, genre: "Arcade", hue: tileHue(g.name), badge: "Free", kind: "arcade", file: g.file, url: g.url, cover: g.url ? siteThumbnail(g.url) : g.cover ? `/api/public/games/cover/${g.cover}` : undefined }; }
 export const consoleCatalogOptions = queryOptions({
   queryKey: ["console-catalog"], staleTime: 60 * 60 * 1000,
   queryFn: async () => {
-    const raw: unknown = await getConsoleArcade();
+    const [raw, custom] = await Promise.all([getConsoleArcade(), listDeveloperGames()]);
     if (!Array.isArray(raw)) throw new Error("Arcade games couldn't load. Try again.");
     const arcade = raw.filter((g): g is ArcadeGame => !!g && typeof g.id === "number" && typeof g.name === "string" && typeof g.file === "string" && /^[A-Za-z0-9._-]+\.html?$/.test(g.file));
-    return { arcade, games: [...CATALOG, ...arcade.map(fromArcade), ...APPS] };
+    const addedArcade: ArcadeGame[] = custom.filter(g => g.kind === "arcade").map((g,i) => ({ id: -i-1, name: g.name, author: "", file: `custom:${g.id}`, cover: "", url: g.url }));
+    const addedCloud: ConsoleGame[] = custom.filter(g => g.kind === "cloud").map(g => ({ id: `custom:${g.id}`, title: g.name, tagline: "", genre: "Cloud games", hue: tileHue(g.name), badge: "Free", kind: "cloud", url: g.url, cover: siteThumbnail(g.url) }));
+    return { arcade: [...arcade, ...addedArcade], games: [...CATALOG, ...arcade.map(fromArcade), ...addedArcade.map(fromArcade), ...addedCloud, ...APPS] };
   },
 });
 export const useCatalog = () => useSuspenseQuery(consoleCatalogOptions).data;

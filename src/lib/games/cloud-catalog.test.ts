@@ -3,6 +3,10 @@ import { CLOUD_GAMES } from "./cloud-catalog";
 import { cloudRelayUrl } from "./cloud-relay";
 
 describe("Rift Arena cloud game", () => {
+  it("adds XO Beta to cloud games with the shared relay", () => {
+    expect(CLOUD_GAMES.find(g => g.url === "https://xo-beta-full.vercel.app/")?.name).toBe("XO Beta");
+    expect(cloudRelayUrl("https://xo-beta-full.vercel.app/")).toBe("/api/public/cg/https/xo-beta-full.vercel.app/");
+  });
   it("includes the requested game using the shared cloud relay", () => {
     const url = "https://rift-arena-eight.vercel.app/";
     expect(CLOUD_GAMES.filter(game => game.url === url)).toEqual([{ name: "Rift Arena", url }]);

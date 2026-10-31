@@ -1,5 +1,7 @@
 import { Player } from "@/components/games/ArcadePlayer";
 import { CLOUD_GAMES as CLOUD } from "@/lib/games/cloud-catalog";
+import { useDeveloperGames } from "@/lib/games/developer-games";
+import { siteThumbnail } from "@/lib/console/catalog";
 import { useGameplayPerformance } from "@/lib/games/performance";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Gamepad2, Globe, Maximize, RotateCw, Search, Wand2 } from "lucide-react";
@@ -34,9 +36,11 @@ const SERVERS = [
 
 
 type Mode = "games" | "sites" | "cloud";
-type Game = { id: number; name: string; author: string; file: string; cover: string };
+type Game = { id: number; name: string; author: string; file: string; cover: string; url?: string };
 
 export function GamesView() {
+  const { data: custom = [] } = useDeveloperGames();
+  const cloud = [...CLOUD, ...custom.filter(g => g.kind === "cloud")];
   const [mode, setMode] = useState<Mode | null>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -73,7 +77,7 @@ export function GamesView() {
             </button>
           </div>
         </div>
-      ) : mode === "games" ? <Library /> : mode === "cloud" ? <CloudGrid key="cloud" list={CLOUD} note="AAA browser games from browser.wix3.com, plus cloud services. Big games like GTA V and Call of Duty stream from these services. Xbox Cloud needs an Xbox Game Pass Ultimate account, GeForce NOW needs games you own on Steam/Epic. now.gg and EasyFun are free." /> : <Sites key="sites" list={SERVERS} storeKey="astra-game-server" />}
+      ) : mode === "games" ? <Library /> : mode === "cloud" ? <CloudGrid key="cloud" list={cloud} note="AAA browser games from browser.wix3.com, plus cloud services. Big games like GTA V and Call of Duty stream from these services. Xbox Cloud needs an Xbox Game Pass Ultimate account, GeForce NOW needs games you own on Steam/Epic. now.gg and EasyFun are free." /> : <Sites key="sites" list={SERVERS} storeKey="astra-game-server" />}
     </div>
   );
 }
@@ -81,6 +85,7 @@ export function GamesView() {
 type Tab = "all" | "favorites" | "recent" | "profile";
 
 function Library() {
+  const { data: custom = [] } = useDeveloperGames();
   const [games, setGames] = useState<Game[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -99,12 +104,13 @@ function Library() {
   const shown = useMemo(() => {
     const s = q.trim().toLowerCase();
     const fav = new Set(stats.favorites);
-    let list = (games ?? []).filter((g) => !s || g.name.toLowerCase().includes(s));
+    const added: Game[] = custom.filter(g => g.kind === "arcade").map((g,i) => ({ id: -i-1, name: g.name, author: "", file: `custom:${g.id}`, cover: "", url: g.url }));
+    let list = [...(games ?? []), ...added].filter((g) => !s || g.name.toLowerCase().includes(s));
     if (tab === "favorites") list = list.filter((g) => fav.has(g.name));
     if (tab === "recent") list = list.filter((g) => stats.last[g.name]).sort((a, b) => (stats.last[b.name] ?? 0) - (stats.last[a.name] ?? 0));
     else list = [...list].sort((a, b) => Number(fav.has(b.name)) - Number(fav.has(a.name)));
     return list;
-  }, [games, q, tab, stats]);
+  }, [games, custom, q, tab, stats]);
 
   const room = useRoom("games");
   if (room && !room.host && room.state?.game) return <GuestScreen />;
@@ -139,7 +145,7 @@ function Library() {
               return (
                 <div key={g.id} className="group relative overflow-hidden rounded-xl border bg-card transition-transform hover:-translate-y-0.5 hover:shadow-lg [content-visibility:auto]">
                   <button onClick={() => setPlaying(g)} className="block w-full text-left">
-                    <img src={`/api/public/games/cover/${g.cover}`} alt={g.name} loading="lazy" decoding="async" className="aspect-square w-full bg-muted object-cover" />
+                    <img src={g.url ? siteThumbnail(g.url) : `/api/public/games/cover/${g.cover}`} alt={g.name} loading="lazy" decoding="async" className="aspect-square w-full bg-muted object-cover" />
                     <p className="truncate px-2 py-1.5 text-sm">{g.name}</p>
                   </button>
                   <button onClick={() => toggleFavorite(g.name)} aria-label={fav ? "Remove from favorites" : "Add to favorites"}

@@ -8,12 +8,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { recordPlay, addSeconds, recordMod, recordParty } from "@/lib/games/stats";
 import { usePrefs } from "@/lib/astra/prefs";
 import { attachProxiedPopups } from "@/lib/astra/proxy-popups";
-type Game = { id: number; name: string; author: string; file: string; cover: string };
+import { openProxied } from "@/lib/astra/proxy";
+type Game = { id: number; name: string; author: string; file: string; cover: string; url?: string };
 export function Player({ game, onBack }: { game: Game; onBack: () => void }) {
   const prefs = usePrefs();
   const wrap = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const [nonce, setNonce] = useState(0);
+  const [launchError, setLaunchError] = useState("");
   useEffect(() => {
     recordPlay(game.name);
     let acc = 0;
@@ -87,8 +89,11 @@ export function Player({ game, onBack }: { game: Game; onBack: () => void }) {
   useEffect(() => {
     const iframe = frame.current;
     if (!iframe) return;
-    return attachProxiedPopups(iframe, new URL(src, window.location.origin).href, prefs);
-  }, [src, nonce, save === null, prefs.transport, prefs.wisp]);
+    const detach = attachProxiedPopups(iframe, game.url ?? new URL(src, window.location.origin).href, prefs);
+    let live = true; setLaunchError("");
+    if (game.url) void openProxied(iframe, game.url, { ...prefs, proxyGames: true }).catch(e => { if (live) setLaunchError(e instanceof Error ? e.message : "Couldn't launch game"); });
+    return () => { live = false; detach(); };
+  }, [src, game.url, nonce, save === null, prefs.transport, prefs.wisp]);
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center gap-2 border-b px-3 py-2">
@@ -128,9 +133,10 @@ export function Player({ game, onBack }: { game: Game; onBack: () => void }) {
           {aiMsg && <p className="w-full text-xs text-muted-foreground">{aiMsg}</p>}
         </form>
       )}
+      {launchError && <p role="alert" className="p-3 text-sm text-destructive">{launchError}</p>}
       <div ref={wrap} className="relative min-h-0 flex-1 overflow-hidden bg-background [contain:strict]">
-        {save === null ? <p className="p-4 text-sm text-muted-foreground">Loading your save…</p> : <iframe name={`bbsave:${JSON.stringify(saveRef.current)}`} ref={frame} key={nonce} title={game.name} src={src} onLoad={() => { sendMods(on); sendSpeed(speed); }}
-          sandbox="allow-scripts allow-pointer-lock allow-forms allow-modals allow-orientation-lock allow-popups allow-downloads allow-presentation"
+        {save === null ? <p className="p-4 text-sm text-muted-foreground">Loading your save…</p> : <iframe name={`bbsave:${JSON.stringify(saveRef.current)}`} ref={frame} key={nonce} title={game.name} src={game.url ? undefined : src} onLoad={() => { sendMods(on); sendSpeed(speed); }}
+          sandbox={game.url ? undefined : "allow-scripts allow-pointer-lock allow-forms allow-modals allow-orientation-lock allow-popups allow-downloads allow-presentation"}
           allow="fullscreen; autoplay; gamepad; keyboard-map; clipboard-write" allowFullScreen className="h-full w-full border-0" />}
       </div>
     </div>
