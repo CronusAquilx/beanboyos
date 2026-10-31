@@ -381,7 +381,7 @@ html[data-console-tone="palette"] .console-shell {
 }
 html[data-console-accent="custom"] .console-shell { --console-accent: var(--star); --xbox-accent: var(--star); }
 .xbox-series { --console-accent: var(--xbox-accent); }
-.console-shell { --radius: inherit; --foreground: var(--console-foreground); --card-foreground: var(--console-foreground); }
+.console-shell { --card-foreground: var(--console-foreground); }
 .console-shell .appearance-settings,
 .console-app-body {
   --background: var(--console-background); --foreground: var(--console-foreground);

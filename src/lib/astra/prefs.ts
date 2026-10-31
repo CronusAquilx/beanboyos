@@ -144,6 +144,7 @@ function apply() {
   r.dataset["sidebarWidth"] = look.sidebarWidth;
   r.dataset["consoleTone"] = state.palette !== "default" ? "palette" : look.mode;
   r.dataset["consoleAccent"] = state.accent === "star" ? "native" : "custom";
+  r.style.setProperty("--custom-bg-dim", `${state.customBgDim}%`);
   r.style.fontSize = `${state.fontScale}%`;
   r.style.setProperty("--radius", `${state.radius}rem`);
   const a = ACCENTS[state.accent];
