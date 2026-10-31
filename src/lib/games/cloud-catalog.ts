@@ -3,6 +3,7 @@ import { AAA_GAMES } from "./aaa";
 /** Cloud gaming services: big games (GTA V, Call of Duty, Fortnite) stream from their servers. */
 export const CLOUD_GAMES = [
   ...AAA_GAMES,
+  { name: "Rift Arena", url: "https://rift-arena-eight.vercel.app/" },
   { name: "EMX Freebuild (browser simulator)", url: "https://freebuild.emxtweaks.com/" },
   { name: "Fortnite Season 1 — Retrora (community port)", url: "https://retrora.lol/" },
   { name: "Fortnite — Xbox Cloud (official)", url: "https://www.xbox.com/play/games/fortnite/BT5P2X999VH2" },
