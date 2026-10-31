@@ -9,7 +9,7 @@ export type ConsoleGame = {
   badge: "Free" | "Included" | "New";
   kind: "cloud" | "arcade" | "app"; url?: string; file?: string;
   /** Thumbnail from the game's own source site. */
-  cover?: string;
+  cover?: string | undefined;
   /** Streaming apps must be downloaded from the store before they open. */
   installable?: boolean;
 };

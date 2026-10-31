@@ -29,8 +29,9 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
   let overlay: HTMLDivElement | null = null;
   const close = () => { overlay?.remove(); overlay = null; };
   const patch = () => {
-    let w: (Window & { open: typeof window.open }) | null = null;
-    try { w = iframe.contentWindow as typeof w; } catch { return; }
+    type Win = Window & { open: typeof window.open };
+    let w: Win | null = null;
+    try { w = iframe.contentWindow as Win | null; } catch { return; }
     if (!w) return;
     const opener = w;
     try {
