@@ -57,7 +57,8 @@ export function rewriteRelayText(text: string, base: string, kind: "html" | "css
   let out = text.replace(abs, base);
   for (const assetHost of GAME_ASSET_HOSTS) {
     if (assetHost === host) continue;
-    out = out.replace(new RegExp(`(?:https?:)?//${esc(assetHost)}(?=[/"'\`?#)\\s]|$)`, "gi"), `${CLOUD_RELAY_PREFIX}/https/${assetHost}`);
+    const origin = /^https?:\/\//.test(base) ? new URL(base).origin : "";
+    out = out.replace(new RegExp(`(?:https?:)?//${esc(assetHost)}(?=[/"'\`?#)\\s]|$)`, "gi"), `${origin}${CLOUD_RELAY_PREFIX}/https/${assetHost}`);
   }
   if (kind === "html") {
     // Rewritten JS/CSS no longer matches the upstream integrity hash.

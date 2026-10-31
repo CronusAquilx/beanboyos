@@ -36,4 +36,8 @@ describe("cloud game relay", () => {
     const html = rewriteRelayText('<iframe src="https://games.crazygames.com/en_US/buildnow-gg/index.html"></iframe><script integrity="sha256-old" src="https://builds.crazygames.com/main.js"></script>', "/api/public/cg/https/www.crazygames.com", "html", "www.crazygames.com");
     expect(html).toBe('<iframe src="/api/public/cg/https/games.crazygames.com/en_US/buildnow-gg/index.html"></iframe><script src="/api/public/cg/https/builds.crazygames.com/main.js"></script>');
   });
+  it("preserves absolute URL literals required by provider scripts", () => {
+    const js = rewriteRelayText('new URL("https://games.crazygames.com/en_US/buildnow-gg/index.html")', "https://app.example/api/public/cg/https/www.crazygames.com", "js", "www.crazygames.com");
+    expect(js).toBe('new URL("https://app.example/api/public/cg/https/games.crazygames.com/en_US/buildnow-gg/index.html")');
+  });
 });

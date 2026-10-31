@@ -52,7 +52,8 @@ async function relay(request: Request): Promise<Response> {
   const type = (upstream.headers.get("content-type") ?? "").toLowerCase();
   const kind = type.includes("text/html") ? "html" : type.includes("css") ? "css" : type.includes("javascript") ? "js" : null;
   if (kind && request.method !== "HEAD" && upstream.status === 200) {
-    let body = rewriteRelayText(await upstream.text(), base, kind, target.host);
+    // Provider scripts pass URL literals to new URL() without a base. Keep them absolute.
+    let body = rewriteRelayText(await upstream.text(), `${url.origin}${base}`, kind, target.host);
     if (kind === "html") {
       const shim = relayShim(base, target.host);
       body = /<head[^>]*>/i.test(body) ? body.replace(/<head[^>]*>/i, (m) => m + shim) : shim + body;
