@@ -10,7 +10,7 @@ export const getSocial = createServerFn({ method: "POST" }).middleware([requireS
     db.from("social_members").select("*"), db.from("social_posts").select("*").order("created_at", { ascending: false }).limit(150),
     db.from("social_blocks").select("*")
   ]);
-  for (const result of results) if (result.error) throw new Error("Social could not load. Try again.");
+  for (const result of results) if (result.error) { console.error("Social read failed", result.error.code, result.error.message); throw new Error("Social could not load. Try again."); }
   const [profile, friends, parties, members, posts, blocks] = results;
   const ids = [...new Set([context.userId, ...(friends.data ?? []).flatMap(f => [f.sender_id, f.recipient_id]), ...(members.data ?? []).map(m => m.user_id), ...(posts.data ?? []).map(p => p.user_id), ...(blocks.data ?? []).map(b => b.target_id)])];
   const { data: players, error } = await db.rpc("social_directory", { ids });
