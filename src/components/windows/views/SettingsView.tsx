@@ -76,19 +76,19 @@ export function SettingsView() {
   return (
     <div className="flex h-full flex-col overflow-y-auto">
       <header className="flex h-12 items-center px-3 md:hidden"><MobileMenuButton /></header>
-      <div className="mx-auto w-full max-w-2xl px-4 py-8 md:py-14">
+      <div className={cn("mx-auto w-full max-w-2xl px-4 py-8 md:py-14", p.layout === "windows" && "windows-settings-layout")}>
         <div className="flex items-end justify-between">
           <h1 className="font-display text-4xl">Settings</h1>
           <Button variant="ghost" size="sm" onClick={() => { resetPrefs(); toast("Settings reset"); }}>Reset all</Button>
         </div>
-        <div className="mt-6 flex gap-1 overflow-x-auto rounded-lg border p-1">
+        <nav aria-label="Settings categories" className="settings-categories mt-6 flex gap-1 overflow-x-auto rounded-lg border p-1">
           {TABS.map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={cn("shrink-0 rounded-md px-3 py-1.5 text-sm", tab === t ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground")}>
+            <Button variant="ghost" key={t} onClick={() => setTab(t)} className={cn("shrink-0 rounded-md px-3 py-1.5 text-sm", tab === t ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground")}>
               {t}
-            </button>
+            </Button>
           ))}
-        </div>
-
+        </nav>
+        <div className="settings-category-content min-w-0">
         {tab === "Layout" && (
           <>
             <Card title="App layout">
@@ -212,6 +212,7 @@ export function SettingsView() {
         )}
 
         {tab === "AI" && <AISettings />}
+        </div>
       </div>
     </div>
   );

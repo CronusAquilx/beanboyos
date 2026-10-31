@@ -16,7 +16,7 @@ type Tab = Snap & { id: number; loading: boolean; back: Snap[]; fwd: Snap[]; non
 let nextId = 1;
 const blank = (): Tab => ({ id: nextId++, title: "New tab", query: "", results: null, url: null, loading: false, back: [], fwd: [], nonce: 0 });
 
-export function WebView({ initialQ }: { initialQ?: string } = {}) {
+export function WebView({ initialQ }: { initialQ?: string | undefined } = {}) {
   const search = useServerFn(webSearch);
   const prefs = usePrefs();
   const [tabs, setTabs] = useState<Tab[]>(() => [blank()]);

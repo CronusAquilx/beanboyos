@@ -463,5 +463,11 @@ html[data-sidebar-width="wide"] .launcher-rail { width: 5rem; }
 .windows-task-button { width: 40px; height: 40px; flex-shrink: 0; }
 .windows-task-button > svg { width: 20px; height: 20px; }
 .windows-taskbar { box-shadow: none; }
+.windows-settings-layout { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 20px; max-width: 100%; padding: 24px; }
+.windows-settings-layout > div:first-child { grid-column: 1 / -1; }
+.windows-settings-layout .settings-categories { flex-direction: column; align-self: start; margin-top: 0; border: 0; overflow: visible; }
+.windows-settings-layout .settings-categories button { justify-content: flex-start; }
+.windows-settings-layout .settings-category-content > section:first-child { margin-top: 0; }
+@media (max-width: 639px) { .windows-settings-layout { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 16px; } .windows-settings-layout .settings-categories { flex-direction: row; overflow-x: auto; } }
 @media (max-width: 639px) { .windows-home { padding: 20px; } .windows-shortcuts { gap: 0; } .windows-shortcut { min-height: 62px; } .windows-caption { width: 30px; } }
 @media (prefers-reduced-motion: reduce) { .windows-desktop *, .windows-desktop *::before { animation: none; transition: none; } }

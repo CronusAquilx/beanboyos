@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import { initialVisitStage, nextVisitStage, visitDestination } from "./visit";
 
 describe("Every-visit opening rules", () => {
+  it("opens Windows on its desktop after confirmation", () => {
+    expect(visitDestination({console:"off",focus:"all",layout:"windows"})).toBe("/desktop");
+    expect(visitDestination({console:"sony",focus:"all",layout:"windows"})).toBe("/console");
+  });
   it("starts each fresh visit at the questions instead of restoring completion", () => {
     expect(initialVisitStage()).toBe("setup");
     const finished = nextVisitStage(nextVisitStage("setup", "choices-complete"), "account-confirmed");
