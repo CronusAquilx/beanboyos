@@ -259,6 +259,7 @@ html.perf-lite body { background-image: none !important; }
   --color-console-particle: var(--console-particle);
   --color-console-panel: var(--console-panel);
   --color-xbox-accent: var(--xbox-accent);
+  --color-console-accent: var(--console-accent);
 }
 :root {
   --console-background: oklch(0.13 0.009 260);
@@ -268,6 +269,7 @@ html.perf-lite body { background-image: none !important; }
   --console-particle: oklch(0.9 0.06 85);
   --console-panel: oklch(0.2 0.012 260);
   --xbox-accent: oklch(0.76 0.2 138);
+  --console-accent: oklch(0.8 0.13 235);
   --console-art: linear-gradient(150deg, oklch(0.45 0.1 var(--console-art-hue)), oklch(0.22 0.045 var(--console-art-secondary)));
   --console-scene: linear-gradient(135deg, oklch(0.15 0.025 var(--console-hue)), oklch(0.33 0.08 var(--console-hue)), oklch(0.13 0.012 var(--console-secondary)));
   --console-profile-scene: var(--console-scene);
@@ -369,3 +371,58 @@ html.perf-lite body { background-image: none !important; }
   .xbox-recent-row { min-height: 150px; }
 }
 @media (prefers-reduced-motion: reduce) { .xbox-guide { animation: none; } }
+
+/* Layout personalization: shared root preferences, scoped console roles. */
+html[data-console-tone="light"] .console-shell,
+html[data-console-tone="palette"] .console-shell {
+  --console-background: var(--background);
+  --console-panel: var(--card);
+  --console-foreground: var(--foreground);
+}
+html[data-console-accent="custom"] .console-shell { --console-accent: var(--star); --xbox-accent: var(--star); }
+.xbox-series { --console-accent: var(--xbox-accent); }
+.console-shell { --radius: inherit; --foreground: var(--console-foreground); --card-foreground: var(--console-foreground); }
+.console-shell .appearance-settings,
+.console-app-body {
+  --background: var(--console-background); --foreground: var(--console-foreground);
+  --card: var(--console-panel); --popover: var(--console-panel); --popover-foreground: var(--console-foreground);
+  --muted: var(--console-panel); --secondary: var(--console-panel); --secondary-foreground: var(--console-foreground);
+  --accent: var(--console-panel); --accent-foreground: var(--console-foreground);
+  --muted-foreground: color-mix(in oklch, var(--console-foreground) 65%, transparent);
+  --border: color-mix(in oklch, var(--console-foreground) 18%, transparent); --input: var(--border);
+  --star: var(--console-accent); --ring: var(--console-accent);
+  --primary: var(--console-accent); --primary-foreground: var(--console-ink);
+}
+.console-shell button:focus-visible, .console-tile.is-selected { outline-color: var(--console-accent); }
+.console-shell .ring-console-foreground { --tw-ring-color: var(--console-accent); }
+.console-range, .console-checkbox, .console-progress { accent-color: var(--console-accent); }
+.console-backdrop > img { opacity: calc(1 - var(--custom-bg-dim, 55%) / 2); }
+html[data-console-tone="light"] .console-shade { background: color-mix(in oklch, var(--console-background) 85%, transparent); }
+html[data-console-tone="light"] .xbox-home-shade { background: linear-gradient(0deg, var(--console-background), color-mix(in oklch, var(--console-background) 85%, transparent)); }
+html[data-artwork="off"] .console-backdrop, html[data-artwork="off"] .xbox-game-backdrop { display: none; }
+html[data-artwork="off"][data-custombg="on"] main { background-image: none !important; }
+html[data-tile-size="small"] .console-tile { width: 54px; height: 54px; }
+html[data-tile-size="large"] .console-tile { width: 86px; height: 86px; }
+html[data-tile-size="small"] .xbox-game-tile { width: 88px; height: 88px; }
+html[data-tile-size="small"] .xbox-game-tile:first-child { width: 120px; height: 120px; }
+html[data-tile-size="large"] .xbox-game-tile { width: 138px; height: 138px; }
+html[data-tile-size="large"] .xbox-game-tile:first-child { width: 184px; height: 184px; }
+html[data-density="compact"] .console-topbar, html[data-density="compact"] .xbox-topbar { padding-block: 12px; }
+html[data-density="compact"] .console-shelf { gap: 18px; }
+html[data-density="compact"] .app-shell nav a { padding-block: 6px; }
+html[data-sidebar-width="narrow"] .classic-sidebar { width: 12rem; }
+html[data-sidebar-width="wide"] .classic-sidebar { width: 19rem; }
+html[data-sidebar-width="narrow"] .launcher-rail { width: 3rem; }
+html[data-sidebar-width="wide"] .launcher-rail { width: 5rem; }
+.console-shell .console-tile, .console-shell .xbox-game-tile, .console-shell .xbox-control { border-radius: var(--radius); }
+.appearance-swatch { --swatch: var(--star); background: var(--swatch); color: var(--console-ink); }
+.appearance-swatch[data-swatch="rose"] { --swatch: oklch(0.7 0.17 10); }
+.appearance-swatch[data-swatch="ember"] { --swatch: oklch(0.74 0.16 55); }
+.appearance-swatch[data-swatch="mint"] { --swatch: oklch(0.78 0.14 160); }
+.appearance-swatch[data-swatch="sky"] { --swatch: oklch(0.74 0.13 235); }
+.appearance-swatch[data-swatch="violet"] { --swatch: oklch(0.68 0.17 295); }
+.appearance-swatch[data-swatch="lime"] { --swatch: oklch(0.85 0.19 130); }
+.appearance-swatch[data-swatch="gold"] { --swatch: oklch(0.83 0.15 90); }
+.appearance-swatch[data-swatch="coral"] { --swatch: oklch(0.72 0.15 30); }
+.appearance-swatch[data-swatch="aqua"] { --swatch: oklch(0.82 0.12 195); }
+.appearance-swatch:hover { background: var(--swatch); }

@@ -1,0 +1,25 @@
+import { describe, expect, it } from "vitest";
+import { activeLayout, initialAppearance, updateAppearance } from "./appearance";
+import { DEFAULT_PREFS } from "./prefs";
+
+describe("layout personalization", () => {
+  it("keeps PlayStation and Xbox accents separate", () => {
+    const original = initialAppearance(DEFAULT_PREFS);
+    const saved = updateAppearance({ sony: original, series: original }, "sony", original, { accent: "rose" });
+    expect(saved.sony?.accent).toBe("rose");
+    expect(saved.series?.accent).toBe("star");
+  });
+  it("keeps Classic and Launcher themes separate", () => {
+    const original = initialAppearance(DEFAULT_PREFS);
+    const saved = updateAppearance({ classic: original, launcher: original }, "launcher", original, { mode: "light", palette: "arctic" });
+    expect(saved.launcher?.mode).toBe("light");
+    expect(saved.launcher?.palette).toBe("arctic");
+    expect(saved.classic?.mode).toBe("dark");
+  });
+  it("selects each active layout's own appearance", () => {
+    expect(activeLayout({ console: "sony", layout: "classic" })).toBe("sony");
+    expect(activeLayout({ console: "series", layout: "launcher" })).toBe("series");
+    expect(activeLayout({ console: "off", layout: "classic" })).toBe("classic");
+    expect(activeLayout({ console: "off", layout: "launcher" })).toBe("launcher");
+  });
+});
