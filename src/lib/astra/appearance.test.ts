@@ -3,6 +3,14 @@ import { activeLayout, initialAppearance, updateAppearance } from "./appearance"
 import { DEFAULT_PREFS } from "./prefs";
 
 describe("layout personalization", () => {
+  it("keeps animated wallpapers independent between Windows, PS5 and Xbox", () => {
+    const original = initialAppearance(DEFAULT_PREFS);
+    const saved = updateAppearance({ windows: original, sony: original, series: original }, "windows", original, { wallpaperMotion: "drift", particles: "stars", particleDensity: "rich", appTransparency: "glass" });
+    expect(saved.windows?.wallpaperMotion).toBe("drift");
+    expect(saved.windows?.particles).toBe("stars");
+    expect(saved.sony?.wallpaperMotion).toBe("off");
+    expect(saved.series?.particles).toBe("off");
+  });
   it("keeps PlayStation and Xbox accents separate", () => {
     const original = initialAppearance(DEFAULT_PREFS);
     const saved = updateAppearance({ sony: original, series: original }, "sony", original, { accent: "rose" });

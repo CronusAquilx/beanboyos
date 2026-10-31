@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Clock, LayoutGrid, Search } from "lucide-react";
+import { Clock, LayoutGrid, Search, Film } from "lucide-react";
+import { usePrefs } from "@/lib/astra/prefs";
 import { MobileMenuButton } from "@/components/astra/AppShell";
 import HeroBanner from "@/components/movies/HeroBanner";
 import ContentRow from "@/components/movies/ContentRow";
@@ -44,6 +45,9 @@ const RECENT_KEY = "astra-movie-searches";
 
 
 export function MoviesView() {
+  const prefs = usePrefs();
+  const native = prefs.layout === "windows" || prefs.console === "sony" || prefs.console === "series";
+  const [category, setCategory] = useState<"home" | "movies" | "shows" | "list">("home");
   const [q, setQ] = useState("");
   const [recents, setRecents] = useState<string[]>([]);
   const trending = useTrending();
@@ -91,10 +95,11 @@ export function MoviesView() {
   }, [q]);
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="movies-application h-full overflow-y-auto">
       <WatchModePrompt />
-      <header className="sticky top-0 z-20 grid h-16 grid-cols-[auto_minmax(0,1fr)] items-center gap-2 border-b border-border bg-background/90 px-3 backdrop-blur sm:px-6">
+      <header className="movies-app-header sticky top-0 z-20 grid h-16 grid-cols-[auto_minmax(0,1fr)] items-center gap-2 border-b border-border bg-background/90 px-3 backdrop-blur sm:px-6">
         <MobileMenuButton />
+        {native && <><div className="native-app-wordmark"><Film/><span>Birch Cinema</span></div><nav aria-label="Cinema navigation" className="cinema-navigation">{(["home", "movies", "shows", "list"] as const).map(c => <Button key={c} variant="ghost" aria-pressed={category === c} onClick={() => { setCategory(c); setQ(""); setGenre(null); }}>{c === "list" ? "My List" : c === "shows" ? "TV Shows" : c === "movies" ? "Movies" : "Home"}</Button>)}</nav></>}
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search movies & shows" className="w-full rounded-md border border-input bg-background py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring" />
@@ -122,7 +127,7 @@ export function MoviesView() {
         </Dialog>
         {genre && <button onClick={() => setGenre(null)} className="rounded-full border px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent">Clear</button>}
       </div>
-      {genre && q.trim().length <= 1 ? (
+      {native && category === "list" && !genre && q.trim().length <= 1 ? <section className="p-6"><h1 className="mb-6 text-3xl font-semibold">My List</h1><div className="grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">{watchlist.data?.map(w => <MovieCard key={`${w.media_type}-${w.tmdb_id}`} movie={{ id:w.tmdb_id,title:w.title??"",poster_path:w.poster_path,backdrop_path:null,overview:"",vote_average:0,genre_ids:[],popularity:0,media_type:w.media_type }} compact />)}</div>{!watchlist.data?.length && <p className="text-sm text-muted-foreground">Your list is empty.</p>}</section> : native && category !== "home" && !genre && q.trim().length <= 1 ? <section className="p-6"><h1 className="mb-6 text-3xl font-semibold">{category === "shows" ? "TV Shows" : "Movies"}</h1><ContentRow title="Top rated" movies={category === "shows" ? topTV.data : topMovies.data} isLoading={category === "shows" ? topTV.isLoading : topMovies.isLoading}/>{category === "movies" ? <ContentRow title="In theaters" movies={nowPlaying.data} isLoading={nowPlaying.isLoading}/> : <><ContentRow title="Anime" movies={anime.data} isLoading={anime.isLoading}/><ContentRow title="K-Drama" movies={kdrama.data} isLoading={kdrama.isLoading}/></>}</section> : genre && q.trim().length <= 1 ? (
         <div className="grid grid-cols-3 gap-3 p-4 sm:grid-cols-4 lg:grid-cols-6">
           {genreResults.isLoading && <p className="col-span-full text-sm text-muted-foreground">Loading…</p>}
           {genreResults.data?.map((m) => <MovieCard key={`genre-${m.id}`} movie={{ ...m, media_type: "movie" }} compact />)}

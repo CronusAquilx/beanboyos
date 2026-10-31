@@ -2,7 +2,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type ReactNode } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Home, Monitor, Palette, Sparkles, Globe, Shield, Bot, ChevronRight, Search, User, Music, Film, Gamepad2 } from "lucide-react";
+import wallpaper from "@/assets/windows-wallpaper.jpg";
+import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { getModelStatus } from "@/lib/astra/status.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,7 +20,9 @@ import { AppearanceSettings } from "@/components/astra/AppearanceSettings";
 
 
 
-const TABS = ["Layout", "Appearance", "Essences", "Proxy", "Privacy", "AI"] as const;
+const TABS = ["Home", "Layout", "Appearance", "Essences", "Proxy", "Privacy", "AI"] as const;
+const TAB_ICONS = { Home, Layout: Monitor, Appearance: Palette, Essences: Sparkles, Proxy: Globe, Privacy: Shield, AI: Bot };
+const TAB_LABELS = { Home: "Home", Layout: "System", Appearance: "Personalization", Essences: "Accessibility", Proxy: "Network & internet", Privacy: "Privacy & security", AI: "BirchBlock AI" };
 type TabName = (typeof TABS)[number];
 
 const UA_GROUPS: Record<string, string[]> = {
@@ -69,26 +73,32 @@ function Choice<T extends string>({ value, options, onChange }: { value: T; opti
 
 export function SettingsView() {
   const p = usePrefs();
-  const [tab, setTab] = useState<TabName>("Layout");
+  const { user } = useAuth();
+  const windows = p.layout === "windows" && p.console === "off";
+  const [tab, setTab] = useState<TabName>(windows ? "Home" : "Layout");
+  const [filter, setFilter] = useState("");
   const set = (x: Partial<Prefs>) => setPrefs(x);
   const navigate = useNavigate();
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
       <header className="flex h-12 items-center px-3 md:hidden"><MobileMenuButton /></header>
-      <div className={cn("mx-auto w-full max-w-2xl px-4 py-8 md:py-14", p.layout === "windows" && "windows-settings-layout")}>
+      <div className={cn("mx-auto w-full max-w-2xl px-4 py-8 md:py-14", windows && "windows-settings-layout")}>
         <div className="flex items-end justify-between">
           <h1 className="font-display text-4xl">Settings</h1>
           <Button variant="ghost" size="sm" onClick={() => { resetPrefs(); toast("Settings reset"); }}>Reset all</Button>
         </div>
         <nav aria-label="Settings categories" className="settings-categories mt-6 flex gap-1 overflow-x-auto rounded-lg border p-1">
-          {TABS.map((t) => (
-            <Button variant="ghost" key={t} onClick={() => setTab(t)} className={cn("shrink-0 rounded-md px-3 py-1.5 text-sm", tab === t ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground")}>
-              {t}
+          {windows && <><div className="settings-account"><span><User/></span><div><strong>{user?.user_metadata?.["full_name"] ?? "Player"}</strong><small>BirchBlock account</small></div></div><div className="relative mb-3"><Search className="absolute left-2 top-2.5 size-3.5 text-muted-foreground"/><Input aria-label="Find a setting" placeholder="Find a setting" value={filter} onChange={e => setFilter(e.target.value)} className="pl-7"/></div></>}
+          {TABS.filter(t => (windows || t !== "Home") && (!filter || `${t} ${TAB_LABELS[t]}`.toLowerCase().includes(filter.toLowerCase()))).map((t) => { const Icon = TAB_ICONS[t]; return (
+            <Button variant="ghost" key={t} aria-pressed={tab === t} onClick={() => setTab(t)} className={cn("shrink-0 rounded-md px-3 py-1.5 text-sm", tab === t ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground")}>
+              {windows && <Icon/>}{windows ? TAB_LABELS[t] : t}
             </Button>
-          ))}
+          ); })}
         </nav>
         <div className="settings-category-content min-w-0">
+        {windows && <h2 className="settings-page-title">{TAB_LABELS[tab]}</h2>}
+        {tab === "Home" && <div className="windows-settings-home"><div className="settings-device"><img src={wallpaper} alt="Desktop wallpaper"/><div><h3>BirchBlock desktop</h3><span>Windows layout</span></div><Button variant="ghost" onClick={() => setTab("Layout")}><Monitor/>System</Button></div><div className="settings-recommendations"><section><h3>Recommended settings</h3>{(["Appearance","Privacy","Essences"] as const).map(t => { const Icon = TAB_ICONS[t]; return <Button key={t} variant="ghost" onClick={() => setTab(t)}><Icon/><span>{TAB_LABELS[t]}</span><ChevronRight/></Button>; })}</section><section><h3>Personalize your desktop</h3><img src={wallpaper} alt=""/><Button variant="secondary" onClick={() => setTab("Appearance")}><Palette/>Wallpaper & colors<ChevronRight/></Button></section></div><section className="settings-app-launchers"><h3>Applications</h3>{[{ name:"Music",icon:Music,path:"/music" as const },{name:"Movies & TV",icon:Film,path:"/movies" as const},{name:"Games",icon:Gamepad2,path:"/games" as const}].map(a => <Button key={a.name} variant="ghost" onClick={() => void navigate({ to:a.path })}><a.icon/>{a.name}<ChevronRight/></Button>)}</section></div>}
         {tab === "Layout" && (
           <>
             <Card title="App layout">
