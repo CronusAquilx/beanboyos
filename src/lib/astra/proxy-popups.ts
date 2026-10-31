@@ -45,7 +45,6 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
   let popupName = "";
   let generation = 0;
   let nativeHandle: Window | null = null;
-  const patched = new WeakSet<Window>();
   const bridgeHandles = new Map<string, Window>();
   const close = () => { detachPopup(); detachPopup = () => {}; popup?.close(); popup = null; overlay?.remove(); overlay = null; };
   const patch = (initializedWindow?: Window, callingWindow?: Window) => {
@@ -53,8 +52,6 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
     let w: Win | null = null;
     try { w = (initializedWindow ?? iframe.contentWindow) as Win | null; } catch { return; }
     if (!w) return;
-    if (patched.has(w)) return;
-    patched.add(w);
     // Initialization also runs for nested game frames: the actual caller must be
     // the opener, not always the outer frame, or Firebase callbacks miss their SDK.
     const opener = callingWindow ?? w;
@@ -75,7 +72,6 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
         popupName = requestedName;
         // Open synchronously while user activation is still available.
         popup = window.open("about:blank", requestedName, signInWindowFeatures(features));
-        const sharedUrl = target ? gamePopupUrl(iframe, target) : null;
         // Firebase polls the returned window's closed state and uses its top-level
         // opener/postMessage. An iframe masquerading as a popup breaks that contract.
         if (popup) {
@@ -116,12 +112,7 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
           });
           return nativeHandle;
         }
-        const owner = popup?.document ?? document;
-        if (popup) {
-          owner.title = "Game sign-in — Astra";
-          owner.documentElement.style.height = "100%";
-          owner.body.style.cssText = "margin:0;height:100%";
-        }
+        const owner = document;
         overlay = document.createElement("div");
         overlay.className = "proxy-popup";
         const box = document.createElement("div");
@@ -135,18 +126,14 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
         const frame = owner.createElement("iframe");
         frame.title = "Game sign-in";
         frame.className = "proxy-popup-frame";
-        if (popup) frame.style.cssText = "width:100%;height:100%;border:0";
         frame.allow = "fullscreen; autoplay; clipboard-read; clipboard-write";
         box.append(bar, frame);
         overlay.appendChild(box);
-        if (popup) { owner.body.appendChild(frame); overlay = null; }
-        else document.body.appendChild(overlay);
-        const nativeFallback = popup;
+        document.body.appendChild(overlay);
         const wireUp = () => {
           try {
             const pw = frame.contentWindow;
             if (!pw) return;
-            if (nativeFallback) nativeFallback.opener = opener;
             Object.defineProperty(pw, "opener", { value: opener, configurable: true });
             pw.close = close;
           } catch { /* ignore */ }
@@ -164,7 +151,7 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
           });
         };
         if (target) navigate(target);
-        const handle = nativeFallback ?? frame.contentWindow;
+        const handle = frame.contentWindow;
         if (!handle) return null;
         // Firebase first opens about:blank, then asynchronously assigns its auth
         // helper URL. The arcade/blocked-popup fallback must support that too.
@@ -177,7 +164,7 @@ export function attachProxiedPopups(iframe: HTMLIFrameElement, baseUrl: string, 
           get(win, key) {
             if (key === "location") return locationHandle;
             if (key === "opener") return opener;
-            if (key === "closed") return nativeFallback ? nativeFallback.closed : !frame.isConnected;
+            if (key === "closed") return !frame.isConnected;
             if (key === "close") return close;
             const value = Reflect.get(win, key, win);
             return typeof value === "function" ? value.bind(win) : value;
