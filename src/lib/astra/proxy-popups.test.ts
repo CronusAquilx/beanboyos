@@ -2,18 +2,49 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_PREFS } from "./prefs";
 import { attachProxiedPopups, resolvePopupTarget, signInWindowFeatures } from "./proxy-popups";
 
-const mocks = vi.hoisted(() => ({ open: vi.fn().mockResolvedValue({}), url: vi.fn().mockReturnValue(null), init: new Map<HTMLIFrameElement, (win: Window) => void>() }));
+const mocks = vi.hoisted(() => ({ open: vi.fn().mockResolvedValue({}), url: vi.fn().mockReturnValue(null), prepare: vi.fn().mockResolvedValue(undefined), init: new Map<HTMLIFrameElement, (win: Window) => void>() }));
 vi.mock("./proxy", () => ({
   openProxied: mocks.open,
+  preparePopupRouting: mocks.prepare,
   gamePopupUrl: mocks.url,
   onProxyFrameInit: (frame: HTMLIFrameElement, callback: (win: Window) => void) => {
     mocks.init.set(frame, callback);
     return () => mocks.init.delete(frame);
   },
 }));
-afterEach(() => { document.body.replaceChildren(); mocks.open.mockClear(); mocks.url.mockReset().mockReturnValue(null); mocks.init.clear(); vi.restoreAllMocks(); });
+afterEach(() => { document.body.replaceChildren(); mocks.open.mockClear(); mocks.url.mockReset().mockReturnValue(null); mocks.init.clear(); mocks.prepare.mockClear(); vi.restoreAllMocks(); });
 
 describe("game sign-in routing", () => {
+  it("reuses Firebase's named blank window instead of closing it on the next handoff", () => {
+    const game = document.createElement("iframe"); document.body.append(game);
+    const win = game.contentWindow; if (!win) throw new Error("Missing game");
+    const popup = { location: { href: "about:blank" }, closed: false, opener: null, close: vi.fn(), focus: vi.fn() };
+    const open = vi.spyOn(window, "open").mockReturnValue(popup as unknown as Window);
+    mocks.url.mockImplementation((_f, url) => `/scramjet/p/shared/${encodeURIComponent(url)}`);
+    const detach = attachProxiedPopups(game, "https://1v1.lol/", DEFAULT_PREFS);
+    mocks.init.get(game)?.(win);
+    const first = win.open("about:blank", "firebaseAuth");
+    const second = win.open(login, "firebaseAuth");
+    expect(second).toBe(first);
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(popup.close).not.toHaveBeenCalled();
+    expect(popup.location.href).toBe(`/scramjet/p/shared/${encodeURIComponent(login)}`);
+    detach();
+  });
+  it("accepts arcade's delayed blank-window navigation and keeps the actual game opener", () => {
+    const game = document.createElement("iframe"); document.body.append(game);
+    const popup = { location: { href: "about:blank" }, closed: false, opener: null, close: vi.fn(), focus: vi.fn() };
+    vi.spyOn(window, "open").mockReturnValue(popup as unknown as Window);
+    mocks.url.mockImplementation((_f, url) => `/scramjet/p/shared/${encodeURIComponent(url)}`);
+    const detach = attachProxiedPopups(game, "https://1v1.lol/", DEFAULT_PREFS);
+    window.dispatchEvent(new MessageEvent("message", { source: game.contentWindow, data: { bbPopup: 1, id: "firebase", action: "open", url: "about:blank", name: "firebaseAuth" } }));
+    window.dispatchEvent(new MessageEvent("message", { source: game.contentWindow, data: { bbPopup: 1, id: "firebase", action: "navigate", url: login } }));
+    expect(popup.opener).toBe(game.contentWindow);
+    expect(popup.location.href).toBe(`/scramjet/p/shared/${encodeURIComponent(login)}`);
+    expect(popup.close).not.toHaveBeenCalled();
+    detach();
+  });
+
   const login = "https://accounts.google.com/o/oauth2/auth?client_id=game&redirect_uri=https%3A%2F%2F1v1.lol%2Fcallback&state=a%2Bb#login";
   it("decodes controller frame prefixes without stripping OAuth parameters", () => {
     expect(resolvePopupTarget(`/scramjet/p/frame123/${encodeURIComponent(login)}`, "https://1v1.lol/")).toBe(login);
@@ -36,7 +67,8 @@ describe("game sign-in routing", () => {
     const original = gameWindow.location.href;
     const result = gameWindow.open(login, "_blank");
     expect(nativeOpen).toHaveBeenCalledWith("about:blank", "astra-game-signin", "popup=yes,resizable=yes,scrollbars=yes,width=520,height=720");
-    expect(mocks.open).toHaveBeenCalledWith(separateWindow.document.querySelector("iframe"), login, DEFAULT_PREFS);
+    expect(mocks.prepare).toHaveBeenCalledWith(game, DEFAULT_PREFS);
+    expect(separateWindow.document.querySelector("iframe")).toBeNull();
     expect(gameWindow.location.href).toBe(original);
     expect(result?.opener).toBe(gameWindow);
     detach(); expect(close).toHaveBeenCalled();
@@ -91,7 +123,8 @@ describe("game sign-in routing", () => {
     const result = gameWindow.open("about:blank", "firebaseAuth", "width=500,height=600");
     if (!result) throw new Error("Missing login window");
     result.location.assign(login);
-    expect(mocks.open).toHaveBeenCalledWith(separateWindow.document.querySelector("iframe"), login, DEFAULT_PREFS);
+    expect(mocks.prepare).toHaveBeenCalledWith(game, DEFAULT_PREFS);
+    expect(separateWindow.document.querySelector("iframe")).toBeNull();
     expect(nativeOpen).toHaveBeenCalledWith("about:blank", "firebaseAuth", "popup=yes,resizable=yes,scrollbars=yes,width=500,height=600");
     expect(result.closed).toBe(false);
     detach();
