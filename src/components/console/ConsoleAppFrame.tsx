@@ -38,7 +38,7 @@ export function ConsoleAppFrame({ children }: { children: ReactNode }) {
   // Controller "B" / Escape returns to the console media home, like a PS5 app.
   useConsoleInput((a) => { if (a === "menu") { if (p.console === "series") setGuide(true); else home(); } }, !guide);
   return (
-    <div className={cn("dark console-shell fixed inset-0 flex flex-col bg-console-background text-console-foreground", p.console === "series" && "xbox-series")}>
+    <div className={cn("console-shell fixed inset-0 flex flex-col bg-console-background text-console-foreground", p.console === "series" && "xbox-series")}>
       <header className="console-topbar flex shrink-0 items-center gap-4 border-b border-console-foreground/10 px-4 py-3 md:px-10">
         <BackButton onClick={home} />
         {p.console === "series" && <Button variant="console" size="console" aria-label="Open Xbox guide" title="Open Xbox guide" onClick={() => setGuide(true)} className="xbox-control size-10 shrink-0"><Gamepad2/></Button>}
