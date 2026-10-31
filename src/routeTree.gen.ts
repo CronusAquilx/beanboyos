@@ -42,6 +42,7 @@ import { Route as AuthenticatedConsoleSettingsRouteImport } from './routes/_auth
 import { Route as AuthenticatedConsoleStoreRouteImport } from './routes/_authenticated/console.store'
 import { Route as AuthenticatedMoviesIndexRouteImport } from './routes/_authenticated/movies.index'
 import { Route as ScramjetPSplatRouteImport } from './routes/scramjet.p.$'
+import { Route as AuthenticatedConsoleStreamAppRouteImport } from './routes/_authenticated/console.stream.$app'
 import { Route as AuthenticatedMoviesFreeVideoIdRouteImport } from './routes/_authenticated/movies.free.$videoId'
 import { Route as AuthenticatedMoviesPersonIdRouteImport } from './routes/_authenticated/movies.person.$id'
 import { Route as AuthenticatedMoviesProviderSlugRouteImport } from './routes/_authenticated/movies.provider.$slug'
@@ -224,6 +225,12 @@ const ScramjetPSplatRoute = ScramjetPSplatRouteImport.update({
   path: '/scramjet/p/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedConsoleStreamAppRoute =
+  AuthenticatedConsoleStreamAppRouteImport.update({
+    id: '/console/stream/$app',
+    path: '/console/stream/$app',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMoviesFreeVideoIdRoute =
   AuthenticatedMoviesFreeVideoIdRouteImport.update({
     id: '/movies/free/$videoId',
@@ -298,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/chat/': typeof AuthenticatedChatIndexRoute
   '/console/': typeof AuthenticatedConsoleIndexRoute
   '/movies/': typeof AuthenticatedMoviesIndexRoute
+  '/console/stream/$app': typeof AuthenticatedConsoleStreamAppRoute
   '/movies/free/$videoId': typeof AuthenticatedMoviesFreeVideoIdRoute
   '/movies/person/$id': typeof AuthenticatedMoviesPersonIdRoute
   '/movies/provider/$slug': typeof AuthenticatedMoviesProviderSlugRoute
@@ -339,6 +347,7 @@ export interface FileRoutesByTo {
   '/chat': typeof AuthenticatedChatIndexRoute
   '/console': typeof AuthenticatedConsoleIndexRoute
   '/movies': typeof AuthenticatedMoviesIndexRoute
+  '/console/stream/$app': typeof AuthenticatedConsoleStreamAppRoute
   '/movies/free/$videoId': typeof AuthenticatedMoviesFreeVideoIdRoute
   '/movies/person/$id': typeof AuthenticatedMoviesPersonIdRoute
   '/movies/provider/$slug': typeof AuthenticatedMoviesProviderSlugRoute
@@ -382,6 +391,7 @@ export interface FileRoutesById {
   '/_authenticated/chat/': typeof AuthenticatedChatIndexRoute
   '/_authenticated/console/': typeof AuthenticatedConsoleIndexRoute
   '/_authenticated/movies/': typeof AuthenticatedMoviesIndexRoute
+  '/_authenticated/console/stream/$app': typeof AuthenticatedConsoleStreamAppRoute
   '/_authenticated/movies/free/$videoId': typeof AuthenticatedMoviesFreeVideoIdRoute
   '/_authenticated/movies/person/$id': typeof AuthenticatedMoviesPersonIdRoute
   '/_authenticated/movies/provider/$slug': typeof AuthenticatedMoviesProviderSlugRoute
@@ -425,6 +435,7 @@ export interface FileRouteTypes {
     | '/chat/'
     | '/console/'
     | '/movies/'
+    | '/console/stream/$app'
     | '/movies/free/$videoId'
     | '/movies/person/$id'
     | '/movies/provider/$slug'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/console'
     | '/movies'
+    | '/console/stream/$app'
     | '/movies/free/$videoId'
     | '/movies/person/$id'
     | '/movies/provider/$slug'
@@ -508,6 +520,7 @@ export interface FileRouteTypes {
     | '/_authenticated/chat/'
     | '/_authenticated/console/'
     | '/_authenticated/movies/'
+    | '/_authenticated/console/stream/$app'
     | '/_authenticated/movies/free/$videoId'
     | '/_authenticated/movies/person/$id'
     | '/_authenticated/movies/provider/$slug'
@@ -768,6 +781,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScramjetPSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/console/stream/$app': {
+      id: '/_authenticated/console/stream/$app'
+      path: '/console/stream/$app'
+      fullPath: '/console/stream/$app'
+      preLoaderRoute: typeof AuthenticatedConsoleStreamAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/movies/free/$videoId': {
       id: '/_authenticated/movies/free/$videoId'
       path: '/movies/free/$videoId'
@@ -841,6 +861,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedChatIndexRoute: typeof AuthenticatedChatIndexRoute
   AuthenticatedConsoleIndexRoute: typeof AuthenticatedConsoleIndexRoute
   AuthenticatedMoviesIndexRoute: typeof AuthenticatedMoviesIndexRoute
+  AuthenticatedConsoleStreamAppRoute: typeof AuthenticatedConsoleStreamAppRoute
   AuthenticatedMoviesFreeVideoIdRoute: typeof AuthenticatedMoviesFreeVideoIdRoute
   AuthenticatedMoviesPersonIdRoute: typeof AuthenticatedMoviesPersonIdRoute
   AuthenticatedMoviesProviderSlugRoute: typeof AuthenticatedMoviesProviderSlugRoute
@@ -869,6 +890,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedChatIndexRoute: AuthenticatedChatIndexRoute,
   AuthenticatedConsoleIndexRoute: AuthenticatedConsoleIndexRoute,
   AuthenticatedMoviesIndexRoute: AuthenticatedMoviesIndexRoute,
+  AuthenticatedConsoleStreamAppRoute: AuthenticatedConsoleStreamAppRoute,
   AuthenticatedMoviesFreeVideoIdRoute: AuthenticatedMoviesFreeVideoIdRoute,
   AuthenticatedMoviesPersonIdRoute: AuthenticatedMoviesPersonIdRoute,
   AuthenticatedMoviesProviderSlugRoute: AuthenticatedMoviesProviderSlugRoute,
