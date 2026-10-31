@@ -29,3 +29,4 @@
 - The cloud relay explicitly allowlists verified provider asset hosts and rewrites dynamic iframe/script URLs as well as static markup; portal-only relaying leaves games blocked on separate CDN hosts.
 - Provider game-only entry overrides live in the shared cloud relay resolver, retaining original catalog URLs and installed IDs so launch repairs do not discard libraries.
 - Retrora's frontend location defaults are repaired before Scramjet rewriting in the shared transport adapter; preserve its virtual origin for terrain, account redirects and online sockets without buffering engine or range downloads.
+- Social features use a single authenticated hub across console shells and media frames; all social mutations go through an auth-scoped database function so party membership, blocks and ownership cannot be bypassed by clients.

@@ -6,12 +6,13 @@ import { attachProxiedPopups } from "@/lib/astra/proxy-popups";
 import { Button } from "@/components/ui/button";
 import { cloudRelayUrl, needsIsolation } from "@/lib/games/cloud-relay";
 import { gameRelayUrl, useGameplayPerformance, type GameQuality } from "@/lib/games/performance";
+import { SocialShare } from "@/components/social/SocialAccess";
 
 // Full-tab game player: opens a game through the Astra proxy in its own browser tab.
 export const Route = createFileRoute("/_authenticated/play")({
   ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({ url: typeof s["url"] === "string" ? s["url"] : "", name: typeof s["name"] === "string" ? s["name"] : "" }),
-  head: () => ({ meta: [{ title: "Playing — Astra" }, { name: "description", content: "Play a browser game in its own tab through Astra." }, { property: "og:title", content: "Playing — Astra" }, { property: "og:description", content: "Play a browser game in its own tab through Astra." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Playing — BirchBlock" }, { name: "description", content: "Play a browser game in its own tab through BirchBlock." }, { property: "og:title", content: "Playing — BirchBlock" }, { property: "og:description", content: "Play a browser game in its own tab through BirchBlock." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
   component: Play,
 });
 
@@ -52,7 +53,7 @@ function Play() {
   }, [started, crashKey]);
 
   useEffect(() => {
-    if (name) document.title = `${name} — Astra`;
+    if (name) document.title = `${name} — BirchBlock`;
     if (started && direct) { window.location.href = direct; return; }
     const iframe = ref.current;
     if (!started || !iframe || !url) return;
@@ -85,6 +86,7 @@ function Play() {
             <div className="flex gap-2">
               <Button onClick={() => setStarted(true)}>Start game</Button>
               <Button variant="outline" onClick={() => window.close()}>Close tab</Button>
+              <SocialShare title={name || "Game"} link={`/console/store?game=${encodeURIComponent(`cloud:${url}:${name}`)}`} />
             </div>
           </div>
         </div>

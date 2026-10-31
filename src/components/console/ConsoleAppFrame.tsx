@@ -11,6 +11,7 @@ import { NowPlayingBar } from "@/components/music/NowPlayingBar";
 import { cn } from "@/lib/utils";
 import { Avatar, BackButton } from "./shared";
 import { XboxGuide } from "./xbox/XboxGuide";
+import { SocialAccess } from "@/components/social/SocialAccess";
 
 const TABS = [
   { to: "/music", match: "/music", label: "Music", icon: Music },
@@ -52,6 +53,7 @@ export function ConsoleAppFrame({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="ml-auto flex items-center gap-4">
+          <SocialAccess />
           <Avatar initial={initial} className="size-9" />
           {p.showClock && <span className="hidden text-lg sm:block">{clock}</span>}
         </div>

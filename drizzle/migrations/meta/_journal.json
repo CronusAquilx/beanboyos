@@ -8,6 +8,27 @@
       "when": 1793426190783,
       "tag": "0000_astra_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793472207165,
+      "tag": "0001_console_social",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793472330808,
+      "tag": "0002_social_privacy_projection",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793472454305,
+      "tag": "0003_social_nonrecursive_membership",
+      "breakpoints": true
     }
   ]
 }
