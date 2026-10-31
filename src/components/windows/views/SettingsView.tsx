@@ -17,12 +17,14 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { ACCENTS, PALETTES, resetPrefs, setPrefs, usePrefs, type Prefs } from "@/lib/astra/prefs";
 import { cn } from "@/lib/utils";
 import { AppearanceSettings } from "@/components/astra/AppearanceSettings";
+import { DeveloperGameSettings } from "@/components/games/DeveloperGameSettings";
+import { useDeveloperGameAccess } from "@/lib/games/developer-games";
 
 
 
-const TABS = ["Home", "Layout", "Appearance", "Essences", "Proxy", "Privacy", "AI"] as const;
-const TAB_ICONS = { Home, Layout: Monitor, Appearance: Palette, Essences: Sparkles, Proxy: Globe, Privacy: Shield, AI: Bot };
-const TAB_LABELS = { Home: "Home", Layout: "System", Appearance: "Personalization", Essences: "Accessibility", Proxy: "Network & internet", Privacy: "Privacy & security", AI: "BirchBlock AI" };
+const TABS = ["Home", "Layout", "Appearance", "Essences", "Proxy", "Privacy", "AI", "Developer"] as const;
+const TAB_ICONS = { Home, Layout: Monitor, Appearance: Palette, Essences: Sparkles, Proxy: Globe, Privacy: Shield, AI: Bot, Developer: Gamepad2 };
+const TAB_LABELS = { Home: "Home", Layout: "System", Appearance: "Personalization", Essences: "Accessibility", Proxy: "Network & internet", Privacy: "Privacy & security", AI: "BirchBlock AI", Developer: "Developer games" };
 type TabName = (typeof TABS)[number];
 
 const UA_GROUPS: Record<string, string[]> = {
@@ -74,6 +76,7 @@ function Choice<T extends string>({ value, options, onChange }: { value: T; opti
 export function SettingsView() {
   const p = usePrefs();
   const { user } = useAuth();
+  const { data: developer } = useDeveloperGameAccess();
   const windows = p.layout === "windows" && p.console === "off";
   const [tab, setTab] = useState<TabName>(windows ? "Home" : "Layout");
   const [filter, setFilter] = useState("");
@@ -90,7 +93,7 @@ export function SettingsView() {
         </div>
         <nav aria-label="Settings categories" className="settings-categories mt-6 flex gap-1 overflow-x-auto rounded-lg border p-1">
           {windows && <><div className="settings-account"><span><User/></span><div><strong>{user?.user_metadata?.["full_name"] ?? "Player"}</strong><small>BirchBlock account</small></div></div><div className="relative mb-3"><Search className="absolute left-2 top-2.5 size-3.5 text-muted-foreground"/><Input aria-label="Find a setting" placeholder="Find a setting" value={filter} onChange={e => setFilter(e.target.value)} className="pl-7"/></div></>}
-          {TABS.filter(t => (windows || t !== "Home") && (!filter || `${t} ${TAB_LABELS[t]}`.toLowerCase().includes(filter.toLowerCase()))).map((t) => { const Icon = TAB_ICONS[t]; return (
+          {TABS.filter(t => (t !== "Developer" || developer) && (windows || t !== "Home") && (!filter || `${t} ${TAB_LABELS[t]}`.toLowerCase().includes(filter.toLowerCase()))).map((t) => { const Icon = TAB_ICONS[t]; return (
             <Button variant="ghost" key={t} aria-pressed={tab === t} onClick={() => setTab(t)} className={cn("shrink-0 rounded-md px-3 py-1.5 text-sm", tab === t ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground")}>
               {windows && <Icon/>}{windows ? TAB_LABELS[t] : t}
             </Button>
@@ -222,6 +225,7 @@ export function SettingsView() {
         )}
 
         {tab === "AI" && <AISettings />}
+        {tab === "Developer" && <DeveloperGameSettings />}
         </div>
       </div>
     </div>

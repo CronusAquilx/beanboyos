@@ -1,5 +1,10 @@
 # Birchbeat import roadmap
 
+## Current request — developer game additions
+- [x] Add XO Beta to Cloud Games; its proxied startup screen loads, full gameplay is not verified.
+- [x] Add developer-only URL game management across settings and integrate arcade/cloud catalogs and proxy launches.
+- [x] Verified developer-account add/read/remove flows for arcade and cloud entries; inline arcade and standalone cloud both rendered the saved game's menu through their proxies. Database policies and server role checks enforce developer-only changes; 17 focused tests pass and preview compilation is clean.
+
 ## Current request — Rift Arena
 - [x] Add the requested Rift Arena URL to the shared Cloud Games catalog and existing launch/settings flow.
 - [x] Passed 20 catalog/relay/performance tests; proxied Quick Practice rendered the arena and character with no page errors; preview compilation clean. Full multiplayer matches remain unverified.

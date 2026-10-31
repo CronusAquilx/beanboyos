@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      developer_games: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          name: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind: string
+          name: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          name?: string
+          url?: string
+        }
+        Relationships: []
+      }
       game_saves: {
         Row: {
           data: Json
