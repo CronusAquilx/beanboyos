@@ -13,7 +13,7 @@ export const getSocial = createServerFn({ method: "POST" }).middleware([requireS
   for (const result of results) if (result.error) throw new Error("Social could not load. Try again.");
   const [profile, friends, parties, members, posts, blocks] = results;
   const ids = [...new Set([context.userId, ...(friends.data ?? []).flatMap(f => [f.sender_id, f.recipient_id]), ...(members.data ?? []).map(m => m.user_id), ...(posts.data ?? []).map(p => p.user_id), ...(blocks.data ?? []).map(b => b.target_id)])];
-  const { data: players, error } = await db.from("social_players").select("user_id,handle,status").in("user_id", ids);
+  const { data: players, error } = await db.rpc("social_directory", { ids });
   if (error) throw new Error("Players could not load.");
   return { userId: context.userId, profile: profile.data, friends: friends.data ?? [], parties: parties.data ?? [], members: members.data ?? [], posts: posts.data ?? [], blocks: blocks.data ?? [], players: (players ?? []).map(p => ({ ...p, status: p.status === "invisible" ? "offline" : p.status })) };
 });
