@@ -8,7 +8,7 @@ import { listDeveloperGames } from "@/lib/games/developer-games.functions";
 export type ConsoleGame = {
   id: string; title: string; tagline: string; genre: string; hue: number;
   badge: "Free" | "Included" | "New";
-  kind: "cloud" | "arcade" | "app"; url?: string; file?: string;
+  kind: "cloud" | "arcade" | "app"; url?: string | undefined; file?: string;
   /** Thumbnail from the game's own source site. */
   cover?: string | undefined;
   /** Streaming apps must be downloaded from the store before they open. */

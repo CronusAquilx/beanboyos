@@ -21,4 +21,9 @@ describe("Console real catalog", () => {
   it("connects Music, Movies and AI to their existing screens", () => {
     expect(APPS.slice(0,3).map(launchPath)).toEqual(["/music", "/movies", "/chat"]);
   });
+  it("keeps developer arcade URLs on the inline arcade player", () => {
+    const game = fromArcade({ id: -1, name: "Custom arcade", author: "", file: "custom:123", cover: "", url: "https://example.com/play" });
+    expect(game.url).toBe("https://example.com/play");
+    expect(launchPath(game)).toBe("/console/arcade?game=custom%3A123");
+  });
 });
