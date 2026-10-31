@@ -8,10 +8,15 @@ import { setPending } from "@/lib/astra/data";
 import { Composer } from "@/components/astra/Composer";
 import { MobileMenuButton } from "@/components/astra/AppShell";
 import { AstraMark } from "@/components/astra/Mark";
+import { Button } from "@/components/ui/button";
+import { Code2, Film, Music, Gamepad2, Bot } from "lucide-react";
+import { usePrefs } from "@/lib/astra/prefs";
 
 
 
 export function ChatView() {
+  const prefs = usePrefs();
+  const native = prefs.layout === "windows" || prefs.console === "sony" || prefs.console === "series";
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -37,7 +42,7 @@ export function ChatView() {
   const name = user?.user_metadata?.["full_name"]?.split(" ")[0] ?? user?.email?.split("@")[0];
 
   return (
-    <div className="flex h-full flex-col sky">
+    <div className="ai-application flex h-full flex-col sky">
       <header className="flex h-12 items-center px-3 md:hidden">
         <MobileMenuButton />
       </header>
@@ -49,6 +54,7 @@ export function ChatView() {
               Good to see you{name ? <>, <em>{name}</em></> : ""}.
             </h1>
           </div>
+          {native && <div className="ai-workspace-actions">{[{icon:Gamepad2,label:"Game night",prompt:"Suggest a fun browser game night for a party of friends."},{icon:Film,label:"Movie picks",prompt:"Help me choose a movie to watch tonight. Ask me what I like."},{icon:Music,label:"Music discovery",prompt:"Help me discover new music based on my taste."},{icon:Code2,label:"Create something",prompt:"Help me brainstorm a creative project I can start today."}].map(a => <Button key={a.label} variant="secondary" disabled={busy} onClick={() => void start(a.prompt)}><a.icon/><span>{a.label}</span></Button>)}</div>}
           <Composer
             onSend={start}
             busy={busy}
@@ -57,6 +63,7 @@ export function ChatView() {
             onModel={setModelId}
             onReasoning={setReasoning}
           />
+          {native && <div className="ai-workspace-status"><Bot className="size-3.5"/><span>BirchBlock AI</span></div>}
         </div>
       </div>
     </div>
