@@ -471,3 +471,156 @@ html[data-sidebar-width="wide"] .launcher-rail { width: 5rem; }
 @media (max-width: 639px) { .windows-settings-layout { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 16px; } .windows-settings-layout .settings-categories { flex-direction: row; overflow-x: auto; } }
 @media (max-width: 639px) { .windows-home { padding: 20px; } .windows-shortcuts { gap: 0; } .windows-shortcut { min-height: 62px; } .windows-caption { width: 30px; } }
 @media (prefers-reduced-motion: reduce) { .windows-desktop *, .windows-desktop *::before { animation: none; transition: none; } }
+
+/* Native applications retain their shared actions but have distinct shell composition. */
+:root {
+  --music-brand: oklch(0.73 0.19 150);
+  --cinema-brand: oklch(0.62 0.23 25);
+  --settings-highlight: color-mix(in oklch, var(--desktop-cyan) 9%, var(--background));
+  --app-glass: color-mix(in oklch, var(--background) 91%, transparent);
+}
+.native-app { container-type: inline-size; letter-spacing: 0; }
+.native-app .font-display, .native-app .font-serif { font-family: "Segoe UI", var(--font-sans); letter-spacing: 0; font-weight: 600; }
+.native-app-wordmark { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; white-space: nowrap; }
+.native-app-wordmark svg { width: 22px; height: 22px; }
+.music-library-rail { display: none; }
+.native-app .music-application.has-native-navigation { display: grid; grid-template-columns: 190px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+.native-app .music-library-rail { display: flex; grid-row: 1 / -1; flex-direction: column; padding: 24px 12px 16px; background: var(--sidebar); overflow: hidden; border-right: 1px solid var(--border); }
+.music-library-rail .native-app-wordmark { margin: 0 8px 24px; color: var(--music-brand); font-size: 16px; }
+.music-library-rail nav { display: flex; flex-direction: column; gap: 4px; }
+.music-library-rail button { justify-content: flex-start; width: 100%; font-size: 13px; }
+.music-library-rail nav button[aria-pressed="true"] { background: var(--accent); color: var(--foreground); }
+.music-library-label { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--muted-foreground); margin: 24px 8px 8px; }
+.music-library-label button { width: 26px; height: 26px; padding: 4px; }
+.music-saved-playlists { min-height: 0; overflow-y: auto; flex: 1; }
+.music-rail-current { margin-top: auto; padding: 20px 8px 0; font-size: 12px; }
+.music-rail-current img { aspect-ratio: 1; width: 100%; object-fit: cover; border-radius: 6px; margin-bottom: 12px; }
+.music-rail-current p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.music-rail-current span { color: var(--muted-foreground); font-size: 11px; }
+.native-app .music-application > header { min-width: 0; height: 60px; padding-inline: 20px; background: var(--card); }
+.native-app .music-application > header form { max-width: 470px; border-radius: 6px; }
+.native-app .music-main-inner { padding: 24px; }
+.music-greeting > span { font-size: 10px; color: var(--muted-foreground); }
+.music-greeting h1 { font-size: 28px; font-weight: 700; margin-top: 6px; }
+.music-quick-picks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 20px 0; }
+.music-quick-picks button { height: 56px; padding: 0 12px 0 0; justify-content: flex-start; overflow: hidden; }
+.music-quick-picks img { width: 56px; height: 56px; object-fit: cover; }
+.music-quick-picks span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; text-align: left; }
+.music-quick-picks svg { color: var(--music-brand); width: 15px; flex-shrink: 0; }
+.native-app .music-dj { margin-top: 24px; border-radius: 6px; background: var(--card); border-left: 3px solid var(--music-brand); padding: 22px; }
+.native-app .music-dj h1 { font-size: 24px; }
+.native-app .music-panel { border-radius: 6px; background: var(--card); border: none; }
+.native-app .music-card { width: 144px; }
+.native-app .music-card > div:first-child { border-radius: 6px; }
+.native-app .music-main-inner h2 { font-size: 20px; }
+.native-app .movies-app-header { display: flex; height: auto; min-height: 64px; flex-wrap: wrap; gap: 12px; padding: 12px 24px; }
+.native-app .movies-app-header .native-app-wordmark { color: var(--cinema-brand); }
+.cinema-navigation { display: flex; gap: 2px; min-width: 0; }
+.cinema-navigation button { font-size: 12px; padding: 8px; }
+.cinema-navigation button[aria-pressed="true"] { color: var(--foreground); border-bottom: 2px solid var(--cinema-brand); border-radius: 0; }
+.native-app .movies-app-header > div:last-child { margin-left: auto; max-width: 230px; min-width: 150px; }
+.native-app .movies-application > div:has(> img) { height: 420px; min-height: 320px; max-height: 65cqh; }
+.native-app .movies-application h1 { font-size: 38px; line-height: 1.1; letter-spacing: 0; max-width: 65%; }
+.native-app .movies-application h2 { font-size: 21px; }
+.native-app .movies-application > div:has(> img) a { border-radius: 4px; font-size: 13px; padding: 10px 18px; }
+.windows-settings-layout { max-width: none; height: 100%; padding: 0; grid-template-columns: 210px minmax(0,1fr); gap: 0; background: var(--settings-highlight); }
+.windows-settings-layout > div:first-child { display: none; }
+.windows-settings-layout .settings-categories { height: 100%; padding: 20px 12px; background: color-mix(in oklch, var(--card) 60%, transparent); border-radius: 0; gap: 4px; overflow-y: auto; }
+.windows-settings-layout .settings-categories button { min-height: 36px; font-size: 12px; justify-content: flex-start; white-space: normal; }
+.windows-settings-layout .settings-categories button[aria-pressed="true"] { border-left: 3px solid var(--star); }
+.settings-account { display: flex; align-items: center; gap: 9px; margin-bottom: 20px; padding: 8px; }
+.settings-account > span { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--secondary); }
+.settings-account strong { font-size: 12px; display: block; max-width: 115px; overflow: hidden; text-overflow: ellipsis; }
+.settings-account small { display: block; font-size: 10px; color: var(--muted-foreground); margin-top: 3px; }
+.windows-settings-layout .settings-category-content { padding: 30px; overflow-y: auto; }
+.settings-page-title { font-size: 27px; font-weight: 600; margin-bottom: 26px; }
+.windows-settings-home h3 { font-size: 14px; font-weight: 600; }
+.settings-device { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 28px; }
+.settings-device > img { width: 76px; height: 50px; border: 4px solid var(--foreground); border-radius: 5px; object-fit: cover; }
+.settings-device span { font-size: 11px; color: var(--muted-foreground); }
+.settings-device > button { margin-left: auto; font-size: 12px; }
+.settings-recommendations { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 20px; }
+.settings-recommendations section { min-width: 0; }
+.settings-recommendations button, .settings-app-launchers button { justify-content: flex-start; width: 100%; min-height: 48px; height: auto; font-size: 12px; text-align: left; white-space: normal; border-bottom: 1px solid var(--border); border-radius: 0; }
+.settings-recommendations button > svg:last-child, .settings-app-launchers button > svg:last-child { margin-left: auto; flex-shrink: 0; }
+.settings-recommendations h3 { margin-bottom: 12px; }
+.settings-recommendations img { width: 100%; height: 105px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; }
+.settings-app-launchers { margin-top: 30px; }
+.native-app[data-app="memory"] > div > div { max-width: none; padding: 28px; }
+.native-app[data-app="memory"] ul { border: 0; display: grid; grid-template-columns: repeat(auto-fill,minmax(210px,1fr)); gap: 12px; }
+.native-app[data-app="memory"] li { background: var(--card); border: 1px solid var(--border); border-top: 3px solid var(--desktop-gold); min-height: 100px; border-radius: 6px; align-items: flex-start; }
+.native-app[data-app="chat"] .sky { background-image: none; background-color: var(--card); }
+.native-app[data-app="chat"] h1 { font-size: 30px; font-weight: 600; }
+.native-app[data-app="chat"] .sky > div { align-items: flex-start; justify-content: flex-start; padding: 45px 30px; overflow-y: auto; }
+.native-app[data-app="chat"] .text-center { text-align: left; }
+.native-app[data-app="chat"] .mx-auto.size-7 { margin-left: 0; }
+.native-app[data-app="voice"] > div > div > div { align-items: stretch; max-width: none; padding: 28px; }
+.native-app[data-app="voice"] header { background: var(--card); }
+.native-app[data-app="web"] input { min-width: 0; }
+.native-app[data-app="games"] > div > header { height: 64px; background: var(--card); padding-inline: 24px; }
+.native-app[data-app="games"] h1 { font-size: 22px; }
+.native-app[data-app="social"] { background: var(--sidebar); }
+
+/* Sony's media apps use airy screen-wide navigation; Xbox uses compact tile rails. */
+.console-shell:not(.xbox-series) .music-application.has-native-navigation { grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto minmax(0,1fr); }
+.console-shell:not(.xbox-series) .music-library-rail { grid-row: auto; display: flex; flex-direction: row; align-items: center; gap: 30px; padding: 12px 32px; border-right: 0; background: transparent; }
+.console-shell:not(.xbox-series) .music-library-rail .native-app-wordmark { margin: 0; color: var(--console-accent); }
+.console-shell:not(.xbox-series) .music-library-rail nav { flex-direction: row; gap: 10px; }
+.console-shell:not(.xbox-series) .music-library-rail nav button { width: auto; white-space: nowrap; font-size: 15px; }
+.console-shell:not(.xbox-series) .music-library-label, .console-shell:not(.xbox-series) .music-saved-playlists, .console-shell:not(.xbox-series) .music-rail-current { display: none; }
+.console-shell:not(.xbox-series) .music-main-inner { max-width: 1320px; padding: 28px 36px; }
+.console-shell:not(.xbox-series) .music-card { width: 180px; }
+.console-shell:not(.xbox-series) .music-card > div:first-child { border-radius: 8px; }
+.console-shell:not(.xbox-series) .music-dj { border-left: 0; border-top: 1px solid var(--console-accent); }
+.console-shell:not(.xbox-series) .movies-app-header { border: 0; padding: 16px 36px; }
+.console-shell:not(.xbox-series) .movies-app-header .native-app-wordmark { color: var(--console-accent); }
+.console-shell:not(.xbox-series) .cinema-navigation button { font-size: 15px; }
+.console-shell:not(.xbox-series) .movies-application > div:has(> img) { height: 480px; }
+.xbox-series .music-library-rail { width: auto; background: var(--console-panel); }
+.xbox-series .music-library-rail .native-app-wordmark { color: var(--xbox-accent); }
+.xbox-series .music-library-rail nav button[aria-pressed="true"] { background: var(--xbox-accent); color: var(--console-ink); border-radius: 2px; }
+.xbox-series .music-card > div:first-child, .xbox-series .music-dj, .xbox-series .music-quick-picks button { border-radius: 2px; }
+.xbox-series .movies-app-header .native-app-wordmark { color: var(--xbox-accent); }
+.xbox-series .cinema-navigation button[aria-pressed="true"] { border-color: var(--xbox-accent); background: var(--console-panel); }
+.xbox-series .movies-application > div:has(> img) { height: 350px; }
+.console-shell:not(.xbox-series) .native-app[data-app="chat"] .sky > div { align-items: center; justify-content: center; }
+.console-shell:not(.xbox-series) .native-app[data-app="chat"] .text-center { text-align: center; }
+.console-shell:not(.xbox-series) .native-app[data-app="chat"] .mx-auto.size-7 { margin-inline: auto; }
+.xbox-series .native-app[data-app="memory"] li { border-top-color: var(--xbox-accent); border-radius: 2px; }
+.console-shell:not(.xbox-series) .native-app[data-app="memory"] li { border-top-color: var(--console-accent); }
+html[data-app-transparency="glass"] .windows-window, html[data-app-transparency="glass"] .windows-app-content, html[data-app-transparency="glass"] .console-app-body { background: var(--app-glass); backdrop-filter: blur(20px); }
+.wallpaper-effects { z-index: 0; }
+html[data-wallpaper-motion="drift"] .windows-wallpaper, html[data-wallpaper-motion="drift"] .console-backdrop > img, html[data-wallpaper-motion="drift"] .xbox-game-backdrop img { animation: wallpaper-drift 32s ease-in-out infinite alternate; }
+html[data-wallpaper-motion="zoom"] .windows-wallpaper, html[data-wallpaper-motion="zoom"] .console-backdrop > img, html[data-wallpaper-motion="zoom"] .xbox-game-backdrop img { animation: wallpaper-zoom 24s ease-in-out infinite alternate; }
+@keyframes wallpaper-drift { from { transform: scale(1.08) translateX(-1%); } to { transform: scale(1.08) translateX(1%); } }
+@keyframes wallpaper-zoom { from { transform: scale(1); } to { transform: scale(1.1); } }
+@container (max-width: 700px) {
+  .native-app .music-application.has-native-navigation { grid-template-columns: 150px minmax(0,1fr); }
+  .native-app .music-library-rail { padding-inline: 8px; }
+  .native-app .music-main-inner { padding: 20px; }
+  .native-app .music-application > header { padding: 8px; }
+  .native-app .movies-app-header { padding-inline: 16px; }
+  .native-app .movies-app-header > div:last-child { max-width: none; flex-basis: 100%; }
+  .windows-settings-layout { grid-template-columns: 175px minmax(0,1fr); }
+  .windows-settings-layout .settings-category-content { padding: 22px; }
+  .settings-recommendations { grid-template-columns: minmax(0,1fr); }
+}
+@container (max-width: 480px) {
+  .native-app .music-application.has-native-navigation { grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto minmax(0,1fr); }
+  .native-app .music-library-rail { grid-row: auto; flex-direction: row; padding: 8px; overflow-x: auto; gap: 10px; border-right: 0; }
+  .music-library-rail .native-app-wordmark, .music-library-label, .music-saved-playlists, .music-rail-current { display: none; }
+  .music-library-rail nav { flex-direction: row; }
+  .music-library-rail nav button { width: auto; white-space: nowrap; }
+  .music-quick-picks { grid-template-columns: minmax(0,1fr); }
+  .native-app .movies-application h1 { font-size: 28px; max-width: 90%; }
+  .native-app .movies-application > div:has(> img) { height: 370px; }
+  .windows-settings-layout { grid-template-columns: minmax(0,1fr); height: auto; }
+  .windows-settings-layout .settings-categories { height: auto; flex-direction: row; overflow-x: auto; padding: 8px; }
+  .windows-settings-layout .settings-account, .windows-settings-layout .settings-categories > div { display: none; }
+  .windows-settings-layout .settings-categories button { white-space: nowrap; }
+  .console-shell:not(.xbox-series) .music-library-rail { padding: 8px; gap: 0; }
+  .console-shell:not(.xbox-series) .music-library-rail .native-app-wordmark { display: none; }
+  .console-shell:not(.xbox-series) .music-main-inner { padding: 20px; }
+  .native-app[data-app="chat"] .sky > div { padding: 24px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .windows-wallpaper, .console-backdrop > img, .xbox-game-backdrop img { animation: none !important; } }
