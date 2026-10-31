@@ -3,6 +3,11 @@ import { CLOUD_GAMES } from "./cloud-catalog";
 import { cloudRelayUrl } from "./cloud-relay";
 
 describe("Fortnite browser options", () => {
+  it("includes EMX Freebuild as a separate proxied browser simulator", () => {
+    const url = "https://freebuild.emxtweaks.com/";
+    expect(CLOUD_GAMES.find(game => game.url === url)?.name).toBe("EMX Freebuild (browser simulator)");
+    expect(cloudRelayUrl(url)).toBe("/api/public/cg/https/freebuild.emxtweaks.com/");
+  });
   it("includes the requested Retrora domain separately from official Fortnite", () => {
     expect(CLOUD_GAMES.find(game => game.url === "https://retrora.lol/")?.name).toBe("Fortnite Season 1 — Retrora (community port)");
   });

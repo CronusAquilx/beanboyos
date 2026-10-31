@@ -27,3 +27,4 @@
 - Cloud games use the shared launch resolver: GTA V has its tuned relay; streaming services and hostname-sensitive account games use the complete-site proxy to retain virtual origins and online sockets; other games use the allowlisted same-domain relay, with isolation only for big AAA ports.
 - The Xbox home shelves list only titles the user has installed; unowned games stay in the store.
 - The cloud relay explicitly allowlists verified provider asset hosts and rewrites dynamic iframe/script URLs as well as static markup; portal-only relaying leaves games blocked on separate CDN hosts.
+- Provider game-only entry overrides live in the shared cloud relay resolver, retaining original catalog URLs and installed IDs so launch repairs do not discard libraries.

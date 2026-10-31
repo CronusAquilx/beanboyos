@@ -1,5 +1,12 @@
 # Birchbeat import roadmap
 
+## Current request — game launch repairs and Freebuild
+- [x] Repair BuildNow GG with its current game-only entry and verified files.crazygames.com assets; browser reached the rendered lobby and ConnectedToMasterServer after first-load downloads.
+- [x] Repair Cyberpunk's slice/Link failed error: CSS URL replacement corrupted inline new URL constructors and diverted engine data to the wrong origin. Preserve constructors and relay both verified Cyberpunk CDN hosts; browser reached Starting Engine at 57% with no page errors.
+- [x] Add EMX Freebuild as a separate browser simulator through the shared launch flow; clicked Play Freebuild, moved, and verified the rendered building scene.
+- [x] Run 19 related regression tests; latest preview build passed.
+- [ ] Verify BuildNow match completion, full Cyberpunk world and signed-in store-to-player flow — requires real GPU playtesting and the requesting user's preview sign-in; automatic session mint found no matching account. Startup/lobby verified, not completed matches.
+
 ## Current request — Fortnite browser games
 - [x] Add Retrora Season 1 community Fortnite entry with complete-site proxy routing to preserve its virtual hostname, account navigation and online sockets.
 - [x] Add separately labelled official Fortnite Xbox Cloud and GeForce NOW options; launch-routing and catalog tests pass (16 related tests).
