@@ -579,9 +579,12 @@ html[data-sidebar-width="wide"] .launcher-rail { width: 5rem; }
 .xbox-series .music-library-rail { width: auto; background: var(--console-panel); }
 .xbox-series .music-library-rail .native-app-wordmark { color: var(--xbox-accent); }
 .xbox-series .music-library-rail nav button[aria-pressed="true"] { background: var(--xbox-accent); color: var(--console-ink); border-radius: 2px; }
+.xbox-series .music-library-rail nav button[aria-pressed="false"] { background: transparent; color: var(--console-foreground); }
+.xbox-series .music-library-rail nav button[aria-pressed="false"]:hover { background: var(--console-panel); }
 .xbox-series .music-card > div:first-child, .xbox-series .music-dj, .xbox-series .music-quick-picks button { border-radius: 2px; }
 .xbox-series .movies-app-header .native-app-wordmark { color: var(--xbox-accent); }
 .xbox-series .cinema-navigation button[aria-pressed="true"] { border-color: var(--xbox-accent); background: var(--console-panel); }
+.xbox-series .cinema-navigation button[aria-pressed="false"] { background: transparent; }
 .xbox-series .movies-application > div:has(> img) { height: 350px; }
 .console-shell:not(.xbox-series) .native-app[data-app="chat"] .sky > div { align-items: center; justify-content: center; }
 .console-shell:not(.xbox-series) .native-app[data-app="chat"] .text-center { text-align: center; }

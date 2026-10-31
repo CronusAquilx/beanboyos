@@ -1,9 +1,9 @@
 # Birchbeat import roadmap
 
 ## Current request — distinct applications and effects
-- [ ] Redesign Windows music, movies, settings and other apps with desktop-specific layouts.
-- [ ] Give Sony and Xbox their own app presentation without changing Classic/Launcher.
-- [ ] Add separately saved animated wallpaper, particles and appearance controls; verify app interactions and settings.
+- [x] Redesign Windows music, movies, settings and other apps with desktop-specific layouts.
+- [x] Give Sony and Xbox their own app presentation without changing Classic/Launcher.
+- [x] Add separately saved animated wallpaper, particles and appearance controls; 15 regression tests pass; developer-account checks verified saved effects, one particle canvas, desktop app launches, Sony/Xbox music library and movie list navigation, with no page errors or phone overflow. Existing provider playback validation remains separate below.
 
 ## Current request — Windows desktop
 - [x] Add Windows setup/settings selection and separately saved appearance.
