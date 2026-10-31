@@ -3,7 +3,7 @@ import { activeLayout, initialAppearance, updateAppearance, type AppearanceLayou
 
 export type Prefs = {
   appearances: AppearanceProfiles;
-  layout: "classic" | "launcher";
+  layout: "classic" | "launcher" | "windows";
   console: "off" | "sony" | "series" | "classic";
   consoleSetup: boolean;
   consoleBg: "landscape" | "focused" | "custom";

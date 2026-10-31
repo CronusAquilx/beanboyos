@@ -1,6 +1,6 @@
 import type { Prefs } from "./prefs";
 
-export const LAYOUT_NAMES = { sony: "PlayStation / PS5", series: "Xbox Series X", classic: "Classic", launcher: "Launcher" } as const;
+export const LAYOUT_NAMES = { sony: "PlayStation / PS5", series: "Xbox Series X", classic: "Classic", launcher: "Launcher", windows: "Windows" } as const;
 export type AppearanceLayout = keyof typeof LAYOUT_NAMES;
 export type AppearanceProfile = Pick<Prefs, "palette" | "accent" | "fontScale" | "radius" | "density" | "background" | "reduceMotion" | "showClock" | "consoleBg" | "consoleCustomBg" | "customBg" | "customBgDim"> & {
   mode: "dark" | "light";

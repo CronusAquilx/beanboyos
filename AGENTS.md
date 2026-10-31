@@ -31,3 +31,4 @@
 - Retrora's frontend location defaults are repaired before Scramjet rewriting in the shared transport adapter; preserve its virtual origin for terrain, account redirects and online sockets without buffering engine or range downloads.
 - Social features use a single authenticated hub across console shells and media frames; all social mutations go through an auth-scoped database function so party membership, blocks and ownership cannot be bypassed by clients.
 - Layout appearance profiles live in the existing preferences store with shared settings and CSS tokens; switching shells restores that layout's profile without overwriting another layout or gameplay's temporary styling.
+- Windows desktop uses a shared client-side window model and reusable app views, never nested authenticated shells; cloud games keep their standalone launch for isolation and proxy compatibility.

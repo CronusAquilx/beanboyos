@@ -426,3 +426,48 @@ html[data-sidebar-width="wide"] .launcher-rail { width: 5rem; }
 .appearance-swatch[data-swatch="coral"] { --swatch: oklch(0.72 0.15 30); }
 .appearance-swatch[data-swatch="aqua"] { --swatch: oklch(0.82 0.12 195); }
 .appearance-swatch:hover { background: var(--swatch); }
+
+/* Windows desktop: Mica surfaces, compact chrome, independent app windows. */
+:root {
+  --desktop-ink: oklch(0.98 0.003 240);
+  --desktop-shadow: 0 18px 65px oklch(0.05 0 0 / 35%);
+  --desktop-cyan: oklch(0.7 0.14 225);
+  --desktop-green: oklch(0.72 0.16 150);
+  --desktop-coral: oklch(0.7 0.18 25);
+  --desktop-gold: oklch(0.78 0.15 80);
+}
+.windows-desktop { font-family: "Segoe UI", var(--font-sans); letter-spacing: 0; }
+.windows-wallpaper { filter: brightness(calc(1 - var(--custom-bg-dim, 55%) / 180)); }
+.windows-glass { background: color-mix(in oklch, var(--card) 93%, transparent); backdrop-filter: blur(28px); box-shadow: var(--desktop-shadow); }
+.windows-window { border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--desktop-shadow); background: var(--background); }
+.windows-window.is-active { border-color: color-mix(in oklch, var(--star) 65%, var(--border)); }
+.windows-drag-handle { cursor: move; user-select: none; }
+.windows-caption { width: 36px; height: 39px; border-radius: 0; }
+.windows-caption svg { width: 13px; height: 13px; }
+.windows-app-content [aria-label="Open menu"] { display: none; }
+.windows-app-content .font-display { font-family: "Segoe UI", var(--font-sans); letter-spacing: 0; }
+.windows-home { height: 100%; overflow-y: auto; padding: 30px; }
+.windows-app-button { height: auto; min-height: 88px; flex-direction: column; gap: 8px; padding: 12px 6px; white-space: normal; text-align: center; font-size: 12px; }
+.windows-app-icon { display: grid; place-items: center; width: 38px; height: 38px; color: var(--desktop-cyan); }
+.windows-app-icon svg { width: 30px; height: 30px; stroke-width: 1.7; }
+.windows-app-icon[data-tone="green"] { color: var(--desktop-green); }
+.windows-app-icon[data-tone="coral"] { color: var(--desktop-coral); }
+.windows-app-icon[data-tone="gold"] { color: var(--desktop-gold); }
+.windows-app-icon[data-tone="neutral"] { color: var(--muted-foreground); }
+.windows-shortcut { width: 86px; min-height: 68px; height: auto; display: flex; flex-direction: column; gap: 4px; padding: 6px; white-space: normal; font-size: 11px; color: var(--desktop-ink); text-shadow: 0 1px 3px var(--console-ink); }
+.windows-shortcut:hover { background: color-mix(in oklch, var(--desktop-ink) 12%, transparent); }
+.windows-brand { color: var(--desktop-ink); }
+.windows-start { width: min(540px, calc(100% - 24px)); max-height: calc(100% - 24px); }
+.windows-start-logo { display: grid; grid-template-columns: repeat(2, 8px); grid-template-rows: repeat(2, 8px); gap: 2px; }
+.windows-start-logo i { background: var(--star); }
+.windows-task-button { width: 40px; height: 40px; flex-shrink: 0; }
+.windows-task-button > svg { width: 20px; height: 20px; }
+.windows-taskbar { box-shadow: none; }
+.windows-settings-layout { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 20px; max-width: 100%; padding: 24px; }
+.windows-settings-layout > div:first-child { grid-column: 1 / -1; }
+.windows-settings-layout .settings-categories { flex-direction: column; align-self: start; margin-top: 0; border: 0; overflow: visible; }
+.windows-settings-layout .settings-categories button { justify-content: flex-start; }
+.windows-settings-layout .settings-category-content > section:first-child { margin-top: 0; }
+@media (max-width: 639px) { .windows-settings-layout { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 16px; } .windows-settings-layout .settings-categories { flex-direction: row; overflow-x: auto; } }
+@media (max-width: 639px) { .windows-home { padding: 20px; } .windows-shortcuts { gap: 0; } .windows-shortcut { min-height: 62px; } .windows-caption { width: 30px; } }
+@media (prefers-reduced-motion: reduce) { .windows-desktop *, .windows-desktop *::before { animation: none; transition: none; } }
