@@ -6,6 +6,7 @@ import { useMovieDetail, useTVDetail } from "@/lib/movies/hooks";
 import { useWatchHistory } from "@/lib/movies/watch-history";
 import { cn } from "@/lib/utils";
 import { RoomButton } from "@/components/RoomButton";
+import { ProxiedPlayer } from "@/components/movies/ProxiedPlayer";
 import { myRoomId, setRoomState, useRoom } from "@/lib/rooms";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -206,7 +207,7 @@ function Watch() {
       </header>
       <div className={cn("mx-auto px-3 py-3 sm:px-5", theater ? "max-w-none" : "max-w-7xl")}>
         <div ref={playerRef} className={cn("relative overflow-hidden border border-border bg-card shadow-2xl", theater ? "h-[76dvh]" : "aspect-video", fakeFullscreen && "fixed inset-0 z-50 h-dvh w-screen border-0", fullscreen ? "h-screen w-screen border-0" : "rounded-md")}>
-          {!ready ? <div className="grid size-full place-items-center text-sm text-muted-foreground">Finding where you left off…</div> : <iframe key={`${server}-${season}-${episode}-${caption}`} src={embedUrl} title={`${d?.title || d?.name || "Movie"} player`} onLoad={() => setLoaded(true)} onError={tryNextServer} className="size-full border-0" allowFullScreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" />}
+          {!ready ? <div className="grid size-full place-items-center text-sm text-muted-foreground">Finding where you left off…</div> : <ProxiedPlayer key={`${server}-${season}-${episode}-${caption}`} src={embedUrl} title={`${d?.title || d?.name || "Movie"} player`} onLoad={() => setLoaded(true)} onError={tryNextServer} />}
           {fakeFullscreen && <Button type="button" variant="secondary" size="icon" onClick={() => setFakeFullscreen(false)} aria-label="Exit fullscreen" className="absolute right-3 top-3 z-10 rounded-full"><Minimize2 /></Button>}
         </div>
         {!fullscreen && !fakeFullscreen && <>
