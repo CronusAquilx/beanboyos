@@ -46,6 +46,7 @@ import { Route as AuthenticatedConsoleStreamAppRouteImport } from './routes/_aut
 import { Route as AuthenticatedMoviesFreeVideoIdRouteImport } from './routes/_authenticated/movies.free.$videoId'
 import { Route as AuthenticatedMoviesPersonIdRouteImport } from './routes/_authenticated/movies.person.$id'
 import { Route as AuthenticatedMoviesProviderSlugRouteImport } from './routes/_authenticated/movies.provider.$slug'
+import { Route as ApiPublicCgSplatRouteImport } from './routes/api/public/cg.$'
 import { Route as ApiPublicFpSplatRouteImport } from './routes/api/public/fp.$'
 import { Route as ApiPublicGamesSplatRouteImport } from './routes/api/public/games.$'
 import { Route as AuthenticatedMoviesTitleTypeIdRouteImport } from './routes/_authenticated/movies.title.$type.$id'
@@ -249,6 +250,11 @@ const AuthenticatedMoviesProviderSlugRoute =
     path: '/movies/provider/$slug',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicCgSplatRoute = ApiPublicCgSplatRouteImport.update({
+  id: '/api/public/cg/$',
+  path: '/api/public/cg/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicFpSplatRoute = ApiPublicFpSplatRouteImport.update({
   id: '/api/public/fp/$',
   path: '/api/public/fp/$',
@@ -309,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/movies/free/$videoId': typeof AuthenticatedMoviesFreeVideoIdRoute
   '/movies/person/$id': typeof AuthenticatedMoviesPersonIdRoute
   '/movies/provider/$slug': typeof AuthenticatedMoviesProviderSlugRoute
+  '/api/public/cg/$': typeof ApiPublicCgSplatRoute
   '/api/public/fp/$': typeof ApiPublicFpSplatRoute
   '/api/public/games/$': typeof ApiPublicGamesSplatRoute
   '/movies/title/$type/$id': typeof AuthenticatedMoviesTitleTypeIdRoute
@@ -351,6 +358,7 @@ export interface FileRoutesByTo {
   '/movies/free/$videoId': typeof AuthenticatedMoviesFreeVideoIdRoute
   '/movies/person/$id': typeof AuthenticatedMoviesPersonIdRoute
   '/movies/provider/$slug': typeof AuthenticatedMoviesProviderSlugRoute
+  '/api/public/cg/$': typeof ApiPublicCgSplatRoute
   '/api/public/fp/$': typeof ApiPublicFpSplatRoute
   '/api/public/games/$': typeof ApiPublicGamesSplatRoute
   '/movies/title/$type/$id': typeof AuthenticatedMoviesTitleTypeIdRoute
@@ -395,6 +403,7 @@ export interface FileRoutesById {
   '/_authenticated/movies/free/$videoId': typeof AuthenticatedMoviesFreeVideoIdRoute
   '/_authenticated/movies/person/$id': typeof AuthenticatedMoviesPersonIdRoute
   '/_authenticated/movies/provider/$slug': typeof AuthenticatedMoviesProviderSlugRoute
+  '/api/public/cg/$': typeof ApiPublicCgSplatRoute
   '/api/public/fp/$': typeof ApiPublicFpSplatRoute
   '/api/public/games/$': typeof ApiPublicGamesSplatRoute
   '/_authenticated/movies/title/$type/$id': typeof AuthenticatedMoviesTitleTypeIdRoute
@@ -439,6 +448,7 @@ export interface FileRouteTypes {
     | '/movies/free/$videoId'
     | '/movies/person/$id'
     | '/movies/provider/$slug'
+    | '/api/public/cg/$'
     | '/api/public/fp/$'
     | '/api/public/games/$'
     | '/movies/title/$type/$id'
@@ -481,6 +491,7 @@ export interface FileRouteTypes {
     | '/movies/free/$videoId'
     | '/movies/person/$id'
     | '/movies/provider/$slug'
+    | '/api/public/cg/$'
     | '/api/public/fp/$'
     | '/api/public/games/$'
     | '/movies/title/$type/$id'
@@ -524,6 +535,7 @@ export interface FileRouteTypes {
     | '/_authenticated/movies/free/$videoId'
     | '/_authenticated/movies/person/$id'
     | '/_authenticated/movies/provider/$slug'
+    | '/api/public/cg/$'
     | '/api/public/fp/$'
     | '/api/public/games/$'
     | '/_authenticated/movies/title/$type/$id'
@@ -544,6 +556,7 @@ export interface RootRouteChildren {
   ApiTranscribeRoute: typeof ApiTranscribeRoute
   ApiVoiceReplyRoute: typeof ApiVoiceReplyRoute
   ScramjetPSplatRoute: typeof ScramjetPSplatRoute
+  ApiPublicCgSplatRoute: typeof ApiPublicCgSplatRoute
   ApiPublicFpSplatRoute: typeof ApiPublicFpSplatRoute
   ApiPublicGamesSplatRoute: typeof ApiPublicGamesSplatRoute
 }
@@ -809,6 +822,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMoviesProviderSlugRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/cg/$': {
+      id: '/api/public/cg/$'
+      path: '/api/public/cg/$'
+      fullPath: '/api/public/cg/$'
+      preLoaderRoute: typeof ApiPublicCgSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/fp/$': {
       id: '/api/public/fp/$'
       path: '/api/public/fp/$'
@@ -915,6 +935,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTranscribeRoute: ApiTranscribeRoute,
   ApiVoiceReplyRoute: ApiVoiceReplyRoute,
   ScramjetPSplatRoute: ScramjetPSplatRoute,
+  ApiPublicCgSplatRoute: ApiPublicCgSplatRoute,
   ApiPublicFpSplatRoute: ApiPublicFpSplatRoute,
   ApiPublicGamesSplatRoute: ApiPublicGamesSplatRoute,
 }

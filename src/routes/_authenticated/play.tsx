@@ -4,6 +4,7 @@ import { usePrefs } from "@/lib/astra/prefs";
 import { openProxied } from "@/lib/astra/proxy";
 import { attachProxiedPopups } from "@/lib/astra/proxy-popups";
 import { Button } from "@/components/ui/button";
+import { cloudRelayUrl } from "@/lib/games/cloud-relay";
 import { gameRelayUrl, useGameplayPerformance, type GameQuality } from "@/lib/games/performance";
 
 // Full-tab game player: opens a game through the Astra proxy in its own browser tab.
@@ -17,7 +18,9 @@ export const Route = createFileRoute("/_authenticated/play")({
 function Play() {
   const { url, name } = Route.useSearch();
   const [quality, setQuality] = useState<GameQuality>("performance");
-  const direct = gameRelayUrl(url, quality);
+  const tuned = gameRelayUrl(url, quality);
+  // Big ports get the isolated same-domain relay so they can boot and download their data folders.
+  const direct = tuned ?? cloudRelayUrl(url);
   const prefs = usePrefs();
   useGameplayPerformance();
   const ref = useRef<HTMLIFrameElement>(null);
@@ -63,7 +66,7 @@ function Play() {
         <div className="flex h-full items-center justify-center p-6">
           <div className="max-w-md space-y-4 rounded-xl border border-border bg-card p-6 text-card-foreground">
             <h1 className="text-xl font-semibold">{name || "Game"}</h1>
-            {direct && <label className="block space-y-2 text-sm">Graphics
+            {tuned && <label className="block space-y-2 text-sm">Graphics
               <select aria-label="Graphics quality" value={quality} onChange={(e) => setQuality(e.target.value as GameQuality)} className="block w-full rounded-md border border-input bg-background px-3 py-2">
                 <option value="performance">Performance</option>
                 <option value="balanced">Balanced</option>

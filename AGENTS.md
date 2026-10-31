@@ -23,3 +23,6 @@
 - Every embedded third-party page loads via openProxied; install popup interception before page scripts. OAuth reuses named native windows, retains the actual caller as opener, and routes delayed blank-window navigation at the top level; arcade bridge messages remain source-validated and return a delayed-navigation handle rather than null.
 - Shared authentication and arcade views live in components rather than exported route components, preventing route splitting from pulling browser-only dependencies into the server entry.
 - Xbox Series X screens compose the shared catalog, library actions and authenticated console routes; skin-scoped styles and a reusable guide preserve Sony and regular layouts.
+
+- Big catalog game ports (AAA list) launch via the isolated same-domain relay in src/lib/games/cloud-relay.ts; it only relays catalog hosts so it never becomes an open proxy.
+- The Xbox home shelves list only titles the user has installed; unowned games stay in the store.
