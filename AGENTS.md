@@ -24,6 +24,6 @@
 - Shared authentication and arcade views live in components rather than exported route components, preventing route splitting from pulling browser-only dependencies into the server entry.
 - Xbox Series X screens compose the shared catalog, library actions and authenticated console routes; skin-scoped styles and a reusable guide preserve Sony and regular layouts.
 
-- Every cloud catalog game (except GTA V, which has its own relay, and account-based streaming services, which need the full proxy) launches via the same-domain relay in src/lib/games/cloud-relay.ts; only big AAA ports get cross-origin isolation so sign-in popups keep their opener, and it only relays catalog hosts so it never becomes an open proxy.
+- Cloud games use the shared launch resolver: GTA V has its tuned relay; streaming services and hostname-sensitive account games use the complete-site proxy to retain virtual origins and online sockets; other games use the allowlisted same-domain relay, with isolation only for big AAA ports.
 - The Xbox home shelves list only titles the user has installed; unowned games stay in the store.
 - The cloud relay explicitly allowlists verified provider asset hosts and rewrites dynamic iframe/script URLs as well as static markup; portal-only relaying leaves games blocked on separate CDN hosts.
