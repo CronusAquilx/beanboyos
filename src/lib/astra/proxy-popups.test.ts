@@ -2,15 +2,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_PREFS } from "./prefs";
 import { attachProxiedPopups, resolvePopupTarget } from "./proxy-popups";
 
-const mocks = vi.hoisted(() => ({ open: vi.fn().mockResolvedValue({}), init: new Map<HTMLIFrameElement, (win: Window) => void>() }));
+const mocks = vi.hoisted(() => ({ open: vi.fn().mockResolvedValue({}), url: vi.fn().mockReturnValue(null), init: new Map<HTMLIFrameElement, (win: Window) => void>() }));
 vi.mock("./proxy", () => ({
   openProxied: mocks.open,
+  gamePopupUrl: mocks.url,
   onProxyFrameInit: (frame: HTMLIFrameElement, callback: (win: Window) => void) => {
     mocks.init.set(frame, callback);
     return () => mocks.init.delete(frame);
   },
 }));
-afterEach(() => { document.body.replaceChildren(); mocks.open.mockClear(); mocks.init.clear(); vi.restoreAllMocks(); });
+afterEach(() => { document.body.replaceChildren(); mocks.open.mockClear(); mocks.url.mockReset().mockReturnValue(null); mocks.init.clear(); vi.restoreAllMocks(); });
 
 describe("game sign-in routing", () => {
   const login = "https://accounts.google.com/o/oauth2/auth?client_id=game&redirect_uri=https%3A%2F%2F1v1.lol%2Fcallback&state=a%2Bb#login";
@@ -54,5 +55,24 @@ describe("game sign-in routing", () => {
     const detach = attachProxiedPopups(game, "https://1v1.lol/", DEFAULT_PREFS);
     window.dispatchEvent(new MessageEvent("message", { source: window, data: { bbPopup: 1, url: login } }));
     expect(mocks.open).not.toHaveBeenCalled(); detach();
+  });
+  it("keeps a real OAuth window alive and proxies delayed blank-window navigation", () => {
+    const game = document.createElement("iframe"); document.body.append(game);
+    const gameWindow = game.contentWindow;
+    if (!gameWindow) throw new Error("Missing game window");
+    const loginWindow = { location: { href: "about:blank" }, closed: false, opener: null, close: vi.fn(), focus: vi.fn() };
+    vi.spyOn(window, "open").mockReturnValue(loginWindow as unknown as Window);
+    mocks.url.mockImplementation((_frame, target) => `https://app.test/scramjet/p/controller/game/${encodeURIComponent(target)}`);
+    const detach = attachProxiedPopups(game, "https://1v1.lol/", DEFAULT_PREFS);
+    mocks.init.get(game)?.(gameWindow);
+    const result = gameWindow.open("about:blank", "firebaseAuth");
+    if (!result) throw new Error("Missing login window");
+    result.location.href = login;
+    expect(loginWindow.location.href).toBe(`https://app.test/scramjet/p/controller/game/${encodeURIComponent(login)}`);
+    expect(result.closed).toBe(false);
+    expect(loginWindow.opener).toBe(gameWindow);
+    expect(loginWindow.close).not.toHaveBeenCalled();
+    expect(mocks.open).not.toHaveBeenCalled();
+    detach();
   });
 });

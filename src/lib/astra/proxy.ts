@@ -50,6 +50,13 @@ type Frame = import("@mercuryworkshop/scramjet-controller").Frame;
 let cache: { key: string; promise: Promise<Controller> } | null = null;
 let scriptsPromise: Promise<void> | null = null;
 const frameInitializers = new WeakMap<HTMLIFrameElement, (win: Window) => void>();
+const activeFrames = new WeakMap<HTMLIFrameElement, Frame>();
+
+/** Reuse the game's routing context and cookie jar for a real OAuth window. */
+export function gamePopupUrl(iframe: HTMLIFrameElement, target: string): string | null {
+  const frame = activeFrames.get(iframe);
+  return frame ? new URL(frame.prefix + frame.controller.config.codec.encode(target), window.location.origin).href : null;
+}
 
 export function onProxyFrameInit(iframe: HTMLIFrameElement, callback: (win: Window) => void) {
   frameInitializers.set(iframe, callback);
@@ -148,6 +155,7 @@ export async function openProxied(iframe: HTMLIFrameElement, url: string, prefs:
   try { c.setupMessagePort?.(); } catch { /* ignore */ }
   await new Promise((r) => setTimeout(r, 150));
   const frame = controller.createFrame(iframe);
+  activeFrames.set(iframe, frame);
   // Run after Scramjet hooks, but before any page scripts can cache window.open.
   const runtime = (globalThis as Record<string, any>)["$scramjet"];
   runtime.Tap.tap(frame.hooks.init.post, ({ window: win }: { window: Window }) => {
