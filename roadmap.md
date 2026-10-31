@@ -1,5 +1,9 @@
 # Birchbeat import roadmap
 
+## Current request — Rift Arena
+- [x] Add the requested Rift Arena URL to the shared Cloud Games catalog and existing launch/settings flow.
+- [x] Passed 20 catalog/relay/performance tests; proxied Quick Practice rendered the arena and character with no page errors; preview compilation clean. Full multiplayer matches remain unverified.
+
 ## Current request — distinct applications and effects
 - [x] Redesign Windows music, movies, settings and other apps with desktop-specific layouts.
 - [x] Give Sony and Xbox their own app presentation without changing Classic/Launcher.

@@ -2,6 +2,14 @@ import { describe, expect, it } from "vitest";
 import { CLOUD_GAMES } from "./cloud-catalog";
 import { cloudRelayUrl } from "./cloud-relay";
 
+describe("Rift Arena cloud game", () => {
+  it("includes the requested game using the shared cloud relay", () => {
+    const url = "https://rift-arena-eight.vercel.app/";
+    expect(CLOUD_GAMES.filter(game => game.url === url)).toEqual([{ name: "Rift Arena", url }]);
+    expect(cloudRelayUrl(url)).toBe("/api/public/cg/https/rift-arena-eight.vercel.app/");
+  });
+});
+
 describe("Fortnite browser options", () => {
   it("includes EMX Freebuild as a separate proxied browser simulator", () => {
     const url = "https://freebuild.emxtweaks.com/";
