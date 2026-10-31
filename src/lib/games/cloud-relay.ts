@@ -1,18 +1,31 @@
 import { AAA_GAMES } from "./aaa";
+import { CLOUD_GAMES } from "./cloud-catalog";
 
 /**
- * Same-domain relay for big browser game ports (the AAA list). These need cross-origin isolation
- * (SharedArrayBuffer) and fetch large data folders with Range requests, which the in-page proxy
- * frame cannot provide. Only hosts from the fixed catalog are relayed.
+ * Same-domain relay for every cloud game (same approach as the GTA V relay): the site is served from
+ * Astra's own domain with its root-relative files, fetches and redirects kept inside the relay. Big
+ * ports from the AAA list additionally get cross-origin isolation (SharedArrayBuffer). Only hosts from
+ * the fixed catalog are relayed, so this never becomes an open proxy.
  */
 export const CLOUD_RELAY_PREFIX = "/api/public/cg";
 
+/** GTA V keeps its own tuned relay. */
+const OWN_RELAY = ["fiveplay.lol", "www.fiveplay.lol", "gta.deloskiyt.pl"];
+/** Account-based streaming services need their multi-site sign-in, which only the full proxy carries. */
+const ACCOUNT_SERVICES = ["www.xbox.com", "xbox.com", "play.geforcenow.com", "now.gg", "cloud.boosteroid.com", "luna.amazon.com"];
+
+const hostOf = (url: string) => { try { return [new URL(url).hostname.toLowerCase()]; } catch { return []; } };
+const withWww = (h: string) => (h.startsWith("www.") ? [h, h.slice(4)] : [h, `www.${h}`]);
+
 const RELAY_HOSTS = new Set(
-  AAA_GAMES.flatMap((g) => { try { return [new URL(g.url).hostname]; } catch { return []; } })
-    .filter((h) => !["fiveplay.lol", "www.fiveplay.lol", "gta.deloskiyt.pl"].includes(h)),
+  CLOUD_GAMES.flatMap((g) => hostOf(g.url)).flatMap(withWww)
+    .filter((h) => !OWN_RELAY.includes(h) && !ACCOUNT_SERVICES.includes(h)),
 );
+const ISOLATED_HOSTS = new Set(AAA_GAMES.flatMap((g) => hostOf(g.url)).flatMap(withWww));
 
 export const isRelayHost = (host: string) => RELAY_HOSTS.has(host.toLowerCase());
+/** Big ports need SharedArrayBuffer; regular games stay non-isolated so sign-in popups and embeds work. */
+export const needsIsolation = (host: string) => ISOLATED_HOSTS.has(host.toLowerCase());
 
 /** `/api/public/cg/<scheme>/<host>/<path>` for a catalog game, otherwise null. */
 export function cloudRelayUrl(url: string): string | null {
@@ -47,10 +60,20 @@ export function rewriteRelayText(text: string, base: string, kind: "html" | "css
   return out;
 }
 
-/** Runtime shim: keeps fetch/XHR/Worker calls with root-relative URLs inside the relay. */
-export function relayShim(base: string): string {
-  return `<script>(function(){var B=${JSON.stringify(base)};function r(u){if(typeof u!=="string")return u;if(u.charAt(0)==="/"&&u.charAt(1)!=="/"&&u.indexOf(B)!==0&&u.indexOf("/api/public/cg/")!==0)return B+u;return u}
-var f=window.fetch;if(f)window.fetch=function(i,o){try{if(typeof i==="string")i=r(i);else if(i instanceof URL)i=r(i.pathname.charAt(0)==="/"&&i.origin===location.origin?i.pathname+i.search:i.href)}catch(e){}return f.call(this,i,o)};
+/** Rewrites a Set-Cookie header so the game's login/session cookies live under its relay path. */
+export function rewriteSetCookie(cookie: string, base: string): string {
+  const parts = cookie.split(";").map((p) => p.trim()).filter((p) => p && !/^(domain|path|samesite)=/i.test(p) && !/^partitioned$/i.test(p));
+  return [...parts, `Path=${base}/`, "SameSite=Lax"].join("; ");
+}
+
+/**
+ * Runtime shim: keeps fetch/XHR/Worker/WebSocket calls the game builds at runtime (root-relative,
+ * same-origin or the game's own host) inside the relay.
+ */
+export function relayShim(base: string, host: string): string {
+  return `<script>(function(){var B=${JSON.stringify(base)},H=${JSON.stringify(host)},P="/api/public/cg/";function r(u){if(u instanceof URL)u=u.href;if(typeof u!=="string")return u;if(u.charAt(0)==="/"&&u.charAt(1)!=="/"){return u.indexOf(P)===0?u:B+u}try{var x=new URL(u,location.href);if(x.pathname.indexOf(P)===0)return u;if(x.host===location.host||x.host===H||x.host==="www."+H||"www."+x.host===H){if(/^https?:$/.test(x.protocol))return B+x.pathname+x.search+x.hash}}catch(e){}return u}
+var f=window.fetch;if(f)window.fetch=function(i,o){try{if(typeof i==="string"||i instanceof URL)i=r(i);else if(i&&i.url){var n=r(i.url);if(n!==i.url)i=new Request(n,i)}}catch(e){}return f.call(this,i,o)};
 var x=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(){try{arguments[1]=r(String(arguments[1]))}catch(e){}return x.apply(this,arguments)};
-["Worker","SharedWorker"].forEach(function(n){var W=window[n];if(!W)return;window[n]=function(u,o){return new W(r(String(u)),o)};window[n].prototype=W.prototype});})();</script>`;
+["Worker","SharedWorker"].forEach(function(n){var W=window[n];if(!W)return;var N=function(u,o){return new W(r(String(u)),o)};N.prototype=W.prototype;window[n]=N});
+var S=window.WebSocket;if(S){var Q=function(u,p){try{var x=new URL(String(u),location.href);if(x.host===location.host&&x.pathname.indexOf(P)!==0){x.host=H;u=x.href}}catch(e){}return p===undefined?new S(u):new S(u,p)};Q.prototype=S.prototype;["CONNECTING","OPEN","CLOSING","CLOSED"].forEach(function(k){Q[k]=S[k]});window.WebSocket=Q}})();</script>`;
 }
