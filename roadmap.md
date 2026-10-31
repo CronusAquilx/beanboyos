@@ -1,9 +1,9 @@
 # Birchbeat import roadmap
 
 ## Current request — layout personalization
-- [ ] Add separately saved theme, accent and customization controls for Sony, Xbox Series X, Classic and Launcher in settings.
-- [ ] Apply appearance across console screens and media frames without changing gameplay preferences.
-- [ ] Test independent saved choices and verify settings changes across layouts.
+- [x] Add separately saved light/dark modes, 20 color themes, 10 accents, text/corner/spacing controls, backgrounds, tile sizing, sidebar/rail widths, motion and clocks for Sony, Xbox Series X, Classic and Launcher in settings.
+- [x] Apply appearance through shared tokens across console screens and media frames without changing gameplay preferences.
+- [x] Pass 10 regression tests and verify developer-account settings: Sony light/rose, Xbox dark/mint, Classic gold and Launcher sky restore independently; 1020×546 layout has no horizontal overflow; preview compilation clean.
 
 ## Current request — console social features
 - [x] Add opt-in player handles, friend requests, blocking, private text parties, global chat and friends activity.
