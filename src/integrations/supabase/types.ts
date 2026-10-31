@@ -621,6 +621,14 @@ export type Database = {
       }
       social_action: { Args: { action: string; payload?: Json }; Returns: Json }
       social_blocked: { Args: { a: string; b: string }; Returns: boolean }
+      social_directory: {
+        Args: { ids: string[] }
+        Returns: {
+          handle: string
+          status: string
+          user_id: string
+        }[]
+      }
       social_member: { Args: { p: string; u: string }; Returns: boolean }
     }
     Enums: {
