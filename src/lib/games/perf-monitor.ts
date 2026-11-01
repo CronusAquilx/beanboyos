@@ -10,7 +10,7 @@ export function frameStats(deltas: number[]): FrameStats {
   const avg = clean.reduce((s, d) => s + d, 0) / clean.length;
   const sorted = [...clean].sort((a, b) => a - b);
   // 1% low: the frame time at the 99th percentile (the slowest frames).
-  const low = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.99))];
+  const low = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.99))] ?? avg;
   return { fps: avg > 0 ? 1000 / avg : 0, avgMs: avg, lowMs: low };
 }
 
