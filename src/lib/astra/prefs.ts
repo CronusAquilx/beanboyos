@@ -22,6 +22,7 @@ export type Prefs = {
   background: "plain" | "dots" | "grid" | "glow";
   reduceMotion: boolean;
   perfMode: boolean;
+  perfOverlay: boolean;
   glowTitle: boolean;
   tagline: string;
   homeName: string;
@@ -60,6 +61,7 @@ export const DEFAULT_PREFS: Prefs = {
   background: "dots",
   reduceMotion: false,
   perfMode: false,
+  perfOverlay: false,
   glowTitle: true,
   tagline: "everything in one place",
   homeName: "birchblock",
