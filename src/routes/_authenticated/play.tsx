@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { usePrefs } from "@/lib/astra/prefs";
+import { setPrefs, usePrefs } from "@/lib/astra/prefs";
 import { openProxied } from "@/lib/astra/proxy";
 import { attachProxiedPopups } from "@/lib/astra/proxy-popups";
 import { Button } from "@/components/ui/button";
 import { cloudRelayUrl, needsIsolation } from "@/lib/games/cloud-relay";
 import { gameRelayUrl, useGameplayPerformance, type GameQuality } from "@/lib/games/performance";
+import { PerfOverlay } from "@/components/games/PerfOverlay";
 import { SocialShare } from "@/components/social/SocialAccess";
 
 // Full-tab game player: opens a game through the Astra proxy in its own browser tab.

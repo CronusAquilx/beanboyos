@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Maximize, RotateCw, Wand2, Sparkles, SlidersHorizontal } from "lucide-react";
+import { Activity, ArrowLeft, Maximize, RotateCw, Wand2, Sparkles, SlidersHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { presetsFor, modsFor, mapReaderFor } from "@/lib/games/mods";
 import { HostParty } from "@/components/games/GameParty";
