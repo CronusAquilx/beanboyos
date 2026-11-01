@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as GuestRouteImport } from './routes/guest'
+import { Route as GuestPlayRouteImport } from './routes/guest-play'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDesktopRouteImport } from './routes/_authenticated/desktop'
 import { Route as AuthenticatedGamesRouteImport } from './routes/_authenticated/games'
@@ -66,6 +68,16 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuestRoute = GuestRouteImport.update({
+  id: '/guest',
+  path: '/guest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuestPlayRoute = GuestPlayRouteImport.update({
+  id: '/guest-play',
+  path: '/guest-play',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -294,6 +306,8 @@ const AuthenticatedMoviesWatchTypeIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/guest': typeof GuestRoute
+  '/guest-play': typeof GuestPlayRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/desktop': typeof AuthenticatedDesktopRoute
   '/games': typeof AuthenticatedGamesRoute
@@ -339,6 +353,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/guest': typeof GuestRoute
+  '/guest-play': typeof GuestPlayRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/desktop': typeof AuthenticatedDesktopRoute
   '/games': typeof AuthenticatedGamesRoute
@@ -386,6 +402,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/guest': typeof GuestRoute
+  '/guest-play': typeof GuestPlayRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/desktop': typeof AuthenticatedDesktopRoute
   '/_authenticated/games': typeof AuthenticatedGamesRoute
@@ -433,6 +451,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/guest'
+    | '/guest-play'
     | '/admin'
     | '/desktop'
     | '/games'
@@ -478,6 +498,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/guest'
+    | '/guest-play'
     | '/admin'
     | '/desktop'
     | '/games'
@@ -524,6 +546,8 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/guest'
+    | '/guest-play'
     | '/_authenticated/admin'
     | '/_authenticated/desktop'
     | '/_authenticated/games'
@@ -571,6 +595,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  GuestRoute: typeof GuestRoute
+  GuestPlayRoute: typeof GuestPlayRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiGameAiRoute: typeof ApiGameAiRoute
   ApiMoviesRoute: typeof ApiMoviesRoute
@@ -607,6 +633,20 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guest': {
+      id: '/guest'
+      path: '/guest'
+      fullPath: '/guest'
+      preLoaderRoute: typeof GuestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guest-play': {
+      id: '/guest-play'
+      path: '/guest-play'
+      fullPath: '/guest-play'
+      preLoaderRoute: typeof GuestPlayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -968,6 +1008,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  GuestRoute: GuestRoute,
+  GuestPlayRoute: GuestPlayRoute,
   ApiChatRoute: ApiChatRoute,
   ApiGameAiRoute: ApiGameAiRoute,
   ApiMoviesRoute: ApiMoviesRoute,

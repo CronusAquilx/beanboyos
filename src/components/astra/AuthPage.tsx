@@ -50,7 +50,7 @@ export function AuthPage() {
   }
   async function guest() {
     setBusy(true);
-    try{await queryClient.cancelQueries();queryClient.clear();const result=await supabase.auth.signOut();if(result.error)throw result.error;send("account-confirmed");await navigate({to:"/guest",replace:true});}
+    try{await queryClient.cancelQueries();queryClient.clear();const result=await supabase.auth.signOut();if(result.error)throw result.error;await navigate({to:"/guest",replace:true});send("account-confirmed");}
     catch(err){setMessage(err instanceof Error?err.message:"Couldn't continue as guest.");}finally{setBusy(false);}
   }
   async function social(provider:"google"|"lovable") {

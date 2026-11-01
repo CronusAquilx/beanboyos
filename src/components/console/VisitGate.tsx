@@ -8,7 +8,7 @@ export function VisitGate({children}:{children:ReactNode}) {
  const {loading}=useAuth();
  const hydrated=useHydrated();const {stage}=useVisit();const {pathname}=useLocation();
  // Standalone games and proxied pages never mount the app's welcome/login flow.
- if(pathname==="/play"||pathname.startsWith("/scramjet/"))return <>{children}</>;
+ if(pathname==="/play"||pathname==="/guest-play"||pathname.startsWith("/scramjet/"))return <>{children}</>;
  if(!hydrated||loading)return <div className="flex min-h-dvh items-center justify-center bg-background text-foreground">BirchBlock</div>;
  if(stage==="setup")return <ConsoleOnboarding/>;
  if(stage==="login")return <AuthPage/>;
