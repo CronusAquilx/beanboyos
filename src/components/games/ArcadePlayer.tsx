@@ -33,6 +33,11 @@ export function Player({ game, onBack }: { game: Game; onBack: () => void }) {
   const sendSpeed = (v: number) => { try { frame.current?.contentWindow?.postMessage({ bbSpeed: 1, value: v }, "*"); } catch { /* frame gone */ } };
   const [save, setSave] = useState<Record<string, string> | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
+  const [showStats, setShowStats] = useState(prefs.perfOverlay);
+  const toggleStats = () => setShowStats((v) => {
+    setPrefs({ perfOverlay: !v });
+    return !v;
+  });
   const [autoOpen, setAutoOpen] = useState<Record<string, string> | null>(null);
   const applyAuto = async (changes: Record<string, string>) => {
     ignoreSaves.current = Date.now() + 6000;
@@ -119,6 +124,7 @@ export function Player({ game, onBack }: { game: Game; onBack: () => void }) {
           <button onClick={() => setAutoOpen((v) => (v ? null : { ...saveRef.current }))} className="flex items-center gap-1 rounded-md border px-2 py-1.5 text-sm" aria-label="Auto mod menu"><SlidersHorizontal className="size-4" /> Auto mods</button>
           <button onClick={() => setAiOpen((v) => !v)} className="flex items-center gap-1 rounded-md border px-2 py-1.5 text-sm" aria-label="AI mod maker"><Sparkles className="size-4" /> AI mod</button>
           <span className="contents" onClickCapture={() => recordParty()}><HostParty game={game} wrap={wrap} frame={frame} /></span>
+          <button onClick={toggleStats} className={`rounded-md border p-1.5 ${showStats ? "bg-muted" : ""}`} aria-label="Performance overlay" aria-pressed={showStats} title="FPS, ping and memory (Shift+F)"><Activity className="size-4" /></button>
           <button onClick={() => setNonce((n) => n + 1)} className="rounded-md border p-1.5" aria-label="Reload"><RotateCw className="size-4" /></button>
           <button onClick={() => wrap.current?.requestFullscreen?.()} className="flex items-center gap-1 rounded-md border px-2 py-1.5 text-sm" aria-label="Fullscreen">
             <Maximize className="size-4" /> Fullscreen
@@ -139,6 +145,7 @@ export function Player({ game, onBack }: { game: Game; onBack: () => void }) {
         {save === null ? <p className="p-4 text-sm text-muted-foreground">Loading your save…</p> : <iframe name={`bbsave:${JSON.stringify(saveRef.current)}`} ref={frame} key={nonce} title={game.name} src={game.url ? undefined : src} onLoad={() => { sendMods(on); sendSpeed(speed); }}
           sandbox={game.url ? undefined : "allow-scripts allow-pointer-lock allow-forms allow-modals allow-orientation-lock allow-popups allow-downloads allow-presentation"}
           allow="fullscreen; autoplay; gamepad; keyboard-map; clipboard-write" allowFullScreen className="h-full w-full border-0" />}
+        <PerfOverlay frame={frame} visible={showStats && save !== null} onClose={toggleStats} />
       </div>
     </div>
   );
