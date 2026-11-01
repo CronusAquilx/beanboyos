@@ -23,6 +23,14 @@ export function Player({ game, onBack }: { game: Game; onBack: () => void }) {
     const id = setInterval(() => { if (!document.hidden) acc += 15; if (acc >= 60) { addSeconds(game.name, acc); acc = 0; } }, 15000);
     return () => { clearInterval(id); if (acc) addSeconds(game.name, acc); };
   }, [game.name]);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === "f" && e.shiftKey && !(e.target instanceof HTMLInputElement)) toggleStats();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const mods = useMemo(() => modsFor(game.name), [game.name]);
   const [on, setOn] = useState<Record<string, boolean>>({});
   const sendMods = (state: Record<string, boolean>) => {
