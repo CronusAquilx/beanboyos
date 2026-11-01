@@ -12,5 +12,6 @@ export function VisitGate({children}:{children:ReactNode}) {
  if(!hydrated||loading)return <div className="flex min-h-dvh items-center justify-center bg-background text-foreground">BirchBlock</div>;
  if(stage==="setup")return <ConsoleOnboarding/>;
  if(stage==="login")return <AuthPage/>;
+ if(stage==="account-setup")return <ConsoleOnboarding accountSetup/>;
  return <>{children}</>;
 }

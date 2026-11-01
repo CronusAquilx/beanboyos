@@ -1,147 +1,78 @@
-import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { Plus, UserRound, ArrowLeft, LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { usePrefs } from "@/lib/astra/prefs";
 import { useAuth } from "@/lib/auth";
-import { AstraMark } from "@/components/astra/Mark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useServerFn } from "@tanstack/react-start";
 import { devSignIn } from "@/lib/astra/dev-access.functions";
-
+import { usernameSignIn, usernameSignUp, accountSetupStatus } from "@/lib/astra/accounts.functions";
+import { isDeveloperHandle } from "@/lib/astra/account-rules";
 import { useVisit, visitDestination } from "@/lib/console/visit";
-import { ConsoleLogin } from "@/components/console/ConsoleLogin";
+import { ConsoleShell } from "@/components/console/ConsoleShell";
+import { useClock } from "@/lib/console/ctx";
+
 export function AuthPage() {
-  const { session, user } = useAuth();
-  const { send } = useVisit();
-  const [initialUserId] = useState(user?.id ?? null);
-  const [useOther, setUseOther] = useState(false);
-  const p = usePrefs();
-  const navigate = useNavigate();
-  const [mode, setMode] = useState<"in" | "up">("in");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  const enter = () => { send("account-confirmed"); void navigate({to:visitDestination(p),replace:true}); };
-  useEffect(() => {
-    // A restored session is not an instruction to skip this visit's login screen.
-    if (session && (!initialUserId || (useOther && user?.id !== initialUserId))) enter();
-  }, [session, user?.id]);
-  const name = user?.user_metadata?.["full_name"] ?? user?.user_metadata?.["name"] ?? user?.email?.split("@")[0] ?? "Player";
-
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
+  const { session, user } = useAuth(); const { send } = useVisit(); const p = usePrefs();
+  const navigate = useNavigate(); const router = useRouter(); const queryClient = useQueryClient(); const clock = useClock();
+  const [mode, setMode] = useState<"picker"|"in"|"up">("picker");
+  const [username,setUsername]=useState(""); const [password,setPassword]=useState(""); const [email,setEmail]=useState("");
+  const [busy,setBusy]=useState(false); const [message,setMessage]=useState("");
+  const login=useServerFn(usernameSignIn);const signup=useServerFn(usernameSignUp);const dev=useServerFn(devSignIn);const status=useServerFn(accountSetupStatus);
+  const name=String(user?.user_metadata?.["name"]??user?.user_metadata?.["full_name"]??user?.email?.split("@")[0]??"Player");
+  const skin=p.console==="sony"?"Sony Console":p.console==="series"?"Xbox Series X":p.layout==="windows"?"Windows":p.layout==="launcher"?"Launcher":"Classic";
+  async function enter() {
+    await router.invalidate();
+    const complete=await status();
+    if(!complete){send("setup-needed");return;}
+    send("account-confirmed");await navigate({to:visitDestination(p),replace:true});
+  }
+  async function submit(e:React.FormEvent) {
+    e.preventDefault();setBusy(true);setMessage("");
     try {
-      if (mode === "in") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        enter();
+      await queryClient.cancelQueries();queryClient.clear();
+      if(mode==="up")await signup({data:{username,password,email}});
+      if(mode==="in"&&isDeveloperHandle(username)) {
+        const result=await dev({data:{account:username.toLowerCase().startsWith("qais")?"qais":"chance",code:password}});
+        if(!result.ok)throw new Error("Username or password is incorrect.");
+        const verified=await supabase.auth.verifyOtp({token_hash:result.tokenHash,type:"magiclink"});if(verified.error)throw verified.error;
       } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin },
-        });
-        if (error) throw error;
-        if (!data.session) toast.success("Check your inbox to confirm your email.");
-        else enter();
+        const tokens=await login({data:{username,password}});const result=await supabase.auth.setSession(tokens);if(result.error)throw result.error;
       }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setBusy(false);
-    }
+      await enter();
+    }catch(err){setMessage(err instanceof Error?err.message:"Couldn't sign in.");}finally{setBusy(false);}
   }
-
-  async function google() {
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (result.error) toast.error(result.error.message ?? "Google sign-in failed");
-  }
-
-  const form = <>
-        <div className="rounded-lg border bg-card/80 p-6 backdrop-blur">
-          <Button type="button" variant="outline" className="w-full" onClick={google}>
-            Continue with Google
-          </Button>
-          <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-border" />
-            <span className="label-mono">or email</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-          <form onSubmit={submit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
-            </div>
-            <Button type="submit" className="w-full" disabled={busy}>
-              {busy ? "…" : mode === "in" ? "Sign in" : "Create account"}
-            </Button>
-          </form>
-          <button
-            type="button"
-            className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground"
-            onClick={() => setMode(mode === "in" ? "up" : "in")}
-          >
-            {mode === "in" ? "New here? Create an account" : "Have an account? Sign in"}
-          </button>
-        </div>
-        <AdminMode onSuccess={enter} />
-  </>;
-  if (p.console !== "off") return <ConsoleLogin name={String(name)} initial={String(name).slice(0,1).toUpperCase()} returning={!!session && !useOther} onContinue={enter} onOther={()=>setUseOther(true)} onBack={()=>send("restart")}>{form}</ConsoleLogin>;
-  return <div className="relative flex min-h-dvh items-center justify-center bg-background px-5 sky"><div className="w-full max-w-sm animate-rise"><Button variant="ghost" onClick={()=>send("restart")} className="mb-6">Change layout</Button><div className="mb-10 text-center"><AstraMark className="mx-auto size-9"/><h1 className="mt-5 font-display text-5xl">BirchBlock</h1><p className="mt-3 text-sm text-muted-foreground">{session && !useOther ? "Welcome back" : "Sign in to your account"}</p></div>{session&&!useOther?<div className="space-y-3 rounded-lg border bg-card/80 p-6 text-center"><p className="text-lg">{String(name)}</p><Button className="w-full" onClick={enter}>Continue as {String(name)}</Button><Button variant="ghost" className="w-full" onClick={()=>setUseOther(true)}>Use another account</Button></div>:form}</div></div>;
-}
-
-function AdminMode({onSuccess}:{onSuccess:()=>void}) {
-  const [open, setOpen] = useState(false);
-  const [code, setCode] = useState("");
-  const [account, setAccount] = useState<"qais" | "chance">("qais");
-  const [busy, setBusy] = useState(false);
-  const signIn = useServerFn(devSignIn);
-
-  async function go(e: React.FormEvent) {
-    e.preventDefault();
+  async function guest() {
     setBusy(true);
-    try {
-      const res = await signIn({ data: { code, account } });
-      if (!res.ok) throw new Error(res.error);
-      const { error } = await supabase.auth.verifyOtp({ token_hash: res.tokenHash, type: "magiclink" });
-      if (error) throw error;
-      onSuccess();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn't sign in");
-    } finally {
-      setBusy(false);
-    }
+    try{await queryClient.cancelQueries();queryClient.clear();const result=await supabase.auth.signOut();if(result.error)throw result.error;send("account-confirmed");await navigate({to:"/guest",replace:true});}
+    catch(err){setMessage(err instanceof Error?err.message:"Couldn't continue as guest.");}finally{setBusy(false);}
   }
-
-  if (!open)
-    return (
-      <button type="button" onClick={() => setOpen(true)} className="mx-auto mt-6 block label-mono hover:text-foreground">
-        Admin mode
-      </button>
-    );
-  return (
-    <form onSubmit={go} className="mt-6 space-y-3 rounded-lg border bg-card/80 p-4 backdrop-blur">
-      <div className="flex gap-1.5">
-        {(["qais", "chance"] as const).map((a) => (
-          <button key={a} type="button" onClick={() => setAccount(a)}
-            className={`flex-1 rounded-md border px-2 py-1.5 text-sm capitalize ${account === a ? "bg-accent" : ""}`}>
-            {a} (dev)
-          </button>
-        ))}
-      </div>
-      <Input inputMode="numeric" autoFocus placeholder="Access code" value={code} onChange={(e) => setCode(e.target.value)} />
-      <Button type="submit" className="w-full" disabled={busy || !code}>{busy ? "…" : "Enter admin mode"}</Button>
-    </form>
-  );
+  async function social(provider:"google"|"lovable") {
+    const result=await lovable.auth.signInWithOAuth(provider,{redirect_uri:window.location.origin});
+    if(result.error)toast.error(result.error.message??"Sign-in failed");
+    else{const verified=await supabase.auth.getUser();if(verified.data.user)await enter();}
+  }
+  const change=(next:"picker"|"in"|"up")=>{setMode(next);setMessage("");setPassword("");};
+  return <ConsoleShell><header className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-6 py-5"><Button variant="console" size="console" onClick={()=>mode==="picker"?send("restart"):change("picker")}><ArrowLeft/>{mode==="picker"?"Layout":"Back"}</Button><span>{clock}</span></header>
+    <main className={`account-opening account-opening-${p.console!=="off"?p.console:p.layout} relative flex h-dvh flex-col items-center overflow-y-auto px-6 pb-10 pt-24 text-center`}>
+      <span className="text-xs uppercase text-console-foreground/60">{skin}</span>
+      <h1 className="mt-5 text-3xl font-light md:text-5xl">{mode==="picker"?"Welcome Back":mode==="up"?"Add User":"Sign In"}</h1>
+      {mode==="picker"?<><p className="mt-4 text-console-foreground/70">Who&apos;s using {p.console!=="off"?"this controller":"this device"}?</p><div className="mt-10 flex flex-wrap items-start justify-center gap-8">
+        <div className="flex flex-col items-center gap-4"><Button variant="console" size="console" className="flex size-24 items-center justify-center rounded-full bg-console-foreground/10 md:size-32" aria-label="Add user" onClick={()=>change("up")}><Plus className="size-9"/></Button><span>Add User</span></div>
+        {session&&<div className="flex flex-col items-center gap-4"><Button variant="console" size="console" className="flex size-24 items-center justify-center rounded-full bg-console-panel/80 text-4xl ring-2 ring-console-accent md:size-32" aria-label={`Continue as ${name}`} disabled={busy} onClick={()=>{setBusy(true);void enter().catch(e=>setMessage(e.message)).finally(()=>setBusy(false));}}>{name.slice(0,1).toUpperCase()}</Button><span>{name}</span></div>}
+        <div className="flex flex-col items-center gap-4"><Button variant="console" size="console" className="flex size-24 items-center justify-center rounded-full bg-console-foreground/10 md:size-32" aria-label="Sign in to another account" onClick={()=>change("in")}><LogIn className="size-9"/></Button><span>Sign In</span></div>
+      </div><Button variant="console" size="console" className="mt-10 rounded-full bg-console-foreground/15 px-10 py-3" disabled={busy} onClick={guest}><UserRound/>Continue without an account</Button><p className="mt-3 max-w-md text-sm text-console-foreground/65">Guest play: game progress, movie history and music playlists won&apos;t be saved to an account.</p></>:<div className="console-login-form mt-8 w-full max-w-md text-left"><div className="mx-auto mb-7 flex size-24 items-center justify-center rounded-full bg-console-foreground/15 text-4xl">{username?username.slice(0,1).toUpperCase():<UserRound className="size-10"/>}</div><form onSubmit={submit} className="space-y-4">
+        <div className="space-y-2"><Label htmlFor="username">{mode==="up"?"Name / Username":"Username"}</Label><Input id="username" required autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)} placeholder={mode==="up"?"Your username":"Username or existing account email"} minLength={mode==="up"?3:1} maxLength={mode==="up"?24:254}/></div>
+        <div className="space-y-2"><Label htmlFor="password">Password</Label><Input id="password" type="password" autoComplete={mode==="up"?"new-password":"current-password"} required minLength={mode==="up"?6:1} value={password} onChange={e=>setPassword(e.target.value)}/></div>
+        {mode==="up"&&<><div className="space-y-2"><Label htmlFor="contact-email">Email (optional)</Label><Input id="contact-email" type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></div><p className="text-xs text-console-foreground/65">Use your username to sign in. Optional email is contact information only; email password recovery isn&apos;t available for username accounts.</p></>}
+        <div className="flex gap-3 pt-3"><Button type="button" variant="outline" className="flex-1" onClick={()=>change("picker")}>Cancel</Button><Button type="submit" className="flex-1" disabled={busy}>{busy?"Please wait…":mode==="up"?"Create account":"Sign in"}</Button></div>
+      </form><div className="mt-5 flex flex-wrap justify-center gap-2"><Button variant="ghost" onClick={()=>void social("google")}>Google</Button><Button variant="ghost" onClick={()=>void social("lovable")}>Lovable</Button><Button variant="ghost" onClick={()=>change(mode==="up"?"in":"up")}>{mode==="up"?"Already have an account?":"Add User"}</Button><Button variant="ghost" disabled={busy} onClick={guest}>Continue as guest</Button></div></div>}
+      {message&&<p role="alert" className="mt-5 max-w-md text-sm text-destructive">{message}</p>}
+    </main></ConsoleShell>;
 }
