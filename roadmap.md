@@ -95,3 +95,8 @@
 - [x] YouTube, Netflix, Hulu and Paramount+ downloadable from the console store; open through the proxy.
 - [ ] Signed-in check of these screens and real Google sign-in inside 1v1.LOL — needs a real account and playtesting.
 - [ ] Import previous user records — no data export supplied.
+
+## FPS & performance overlay (Nov 1)
+- [x] In-game overlay with FPS, 1% low frame time, ping and memory for cloud (/play) and arcade players; corner move, Shift+F toggle, persisted in prefs.
+- [x] Samples the game frame's own frame rate for same-origin relayed games; host page rate otherwise.
+- [x] 12 perf-monitor/prefs tests pass; full suite 96 passed; browser-verified on Krunker (59 FPS readout, toggle, corner move).
