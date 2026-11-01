@@ -6,8 +6,9 @@ import { HostParty } from "@/components/games/GameParty";
 import { AutoMods } from "@/components/games/AutoMods";
 import { supabase } from "@/integrations/supabase/client";
 import { recordPlay, addSeconds, recordMod, recordParty } from "@/lib/games/stats";
-import { usePrefs } from "@/lib/astra/prefs";
+import { setPrefs, usePrefs } from "@/lib/astra/prefs";
 import { attachProxiedPopups } from "@/lib/astra/proxy-popups";
+import { PerfOverlay } from "@/components/games/PerfOverlay";
 import { openProxied } from "@/lib/astra/proxy";
 type Game = { id: number; name: string; author: string; file: string; cover: string; url?: string };
 export function Player({ game, onBack }: { game: Game; onBack: () => void }) {

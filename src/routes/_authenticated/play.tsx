@@ -38,6 +38,19 @@ function Play() {
   const [started, setStarted] = useState(false);
   const [crashedBefore, setCrashedBefore] = useState(false);
   const [lowMemory, setLowMemory] = useState(false);
+  const [showStats, setShowStats] = useState(prefs.perfOverlay);
+  const toggleStats = () => setShowStats((v) => {
+    setPrefs({ perfOverlay: !v });
+    return !v;
+  });
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === "f" && e.shiftKey && !(e.target instanceof HTMLInputElement)) toggleStats();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
     try { setCrashedBefore(localStorage.getItem(crashKey) === "1"); } catch { /* ignore */ }
@@ -84,6 +97,10 @@ function Play() {
             {crashedBefore && <p className="text-sm text-destructive">This game didn't close properly last time, which usually means the browser ran out of memory.</p>}
             {lowMemory && <p className="text-sm text-destructive">Your device reports less than 8 GB of memory, so this game will probably crash.</p>}
             <p className="text-sm text-muted-foreground">Before starting: close other tabs and apps.</p>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={showStats} onChange={toggleStats} />
+              Show performance overlay (FPS, ping, memory) — press Shift+F while playing to toggle
+            </label>
             <div className="flex gap-2">
               <Button onClick={() => setStarted(true)}>Start game</Button>
               <Button variant="outline" onClick={() => window.close()}>Close tab</Button>
@@ -93,6 +110,7 @@ function Play() {
         </div>
       )}
       <iframe ref={ref} title={name || "Game"} className={started ? "h-full w-full border-0" : "hidden"} allow="fullscreen; autoplay; gamepad; microphone; clipboard-read; clipboard-write; keyboard-map; pointer-lock" allowFullScreen />
+      <PerfOverlay frame={ref} visible={started && showStats} onClose={toggleStats} />
     </div>
   );
 }
