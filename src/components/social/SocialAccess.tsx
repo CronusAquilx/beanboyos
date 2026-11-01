@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { SocialHub } from "./SocialHub";
 import { safeSocialLink } from "@/lib/social/rules";
+import { useAuth } from "@/lib/auth";
 
 export function SocialAccess({ floating = false }: { floating?: boolean }) {
+  const {user}=useAuth();
   const navigate = useNavigate(); const { pathname, searchStr } = useLocation();
   const link = pathname + searchStr;
-  if (pathname === "/console/social") return null;
+  if (!user || pathname === "/console/social") return null;
   return <div className={floating ? "absolute bottom-5 right-5 z-30 flex gap-2 rounded-md bg-console-panel/95 p-2" : "flex shrink-0 gap-2"}>
     <Button variant="console" size="console" title="Friends and parties" aria-label="Friends and parties" className="size-10 bg-console-foreground/10" onClick={()=>void navigate({to:"/console/social"})}><Users/></Button>
     {safeSocialLink(link)&&<SocialShare title={pathname.startsWith("/music")?"Music":pathname.startsWith("/movies")?"Movies":"Game night"} link={link}/>}
