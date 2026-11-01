@@ -1,5 +1,11 @@
 # Birchbeat import roadmap
 
+## Current request — account picker and guests
+- [ ] Show layout first on each document, then shared account picker and Add User form across every layout.
+- [ ] Support username/password accounts, optional contact email, and retain existing account compatibility.
+- [ ] Add genuine guest games/media access without creating accounts or exposing private data.
+- [ ] Limit device/focus questions to first-time setup; verify returning-account and guest flows.
+
 ## Current request — developer game additions
 - [x] Add XO Beta to Cloud Games; its proxied startup screen loads, full gameplay is not verified.
 - [x] Add developer-only URL game management across settings and integrate arcade/cloud catalogs and proxy launches.

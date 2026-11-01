@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import { initialVisitStage, nextVisitStage, visitDestination } from "./visit";
 
 describe("Every-visit opening rules", () => {
+  it("asks extra questions only when the confirmed account needs setup", () => {
+    expect(nextVisitStage("login", "setup-needed")).toBe("account-setup");
+    expect(nextVisitStage("account-setup", "account-confirmed")).toBe("ready");
+    expect(nextVisitStage("ready", "setup-needed")).toBe("ready");
+  });
   it("opens Windows on its desktop after confirmation", () => {
     expect(visitDestination({console:"off",focus:"all",layout:"windows"})).toBe("/desktop");
     expect(visitDestination({console:"sony",focus:"all",layout:"windows"})).toBe("/console");

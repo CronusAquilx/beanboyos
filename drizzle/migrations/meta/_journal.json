@@ -36,6 +36,13 @@
       "when": 1793486795649,
       "tag": "0004_developer_game_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793501491297,
+      "tag": "0005_username_accounts",
+      "breakpoints": true
     }
   ]
 }

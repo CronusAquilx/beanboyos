@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_attempts: {
+        Row: {
+          attempts: number
+          bucket: string
+          started_at: string
+        }
+        Insert: {
+          attempts?: number
+          bucket: string
+          started_at?: string
+        }
+        Update: {
+          attempts?: number
+          bucket?: string
+          started_at?: string
+        }
+        Relationships: []
+      }
       developer_games: {
         Row: {
           created_at: string
@@ -197,32 +215,41 @@ export type Database = {
         Row: {
           avatar_url: string | null
           background_url: string | null
+          contact_email: string | null
           created_at: string
           display_name: string | null
           focus: string | null
           id: string
+          onboarding_complete: boolean
           theme: string | null
           updated_at: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
           background_url?: string | null
+          contact_email?: string | null
           created_at?: string
           display_name?: string | null
           focus?: string | null
           id: string
+          onboarding_complete?: boolean
           theme?: string | null
           updated_at?: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
           background_url?: string | null
+          contact_email?: string | null
           created_at?: string
           display_name?: string | null
           focus?: string | null
           id?: string
+          onboarding_complete?: boolean
           theme?: string | null
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -639,6 +666,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      allow_account_attempt: { Args: { _bucket: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
